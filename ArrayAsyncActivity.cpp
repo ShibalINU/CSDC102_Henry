@@ -3,7 +3,7 @@
 int main()
 {
 
-    int MyArray[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}; // the array
+    int MyArray[] = {1, 2, 3, 4, 15, 6, 7, 30, 9, 10}; // the array
 
     std::cout << "Array: [ ";
     for (int i = 0; i < 10; i++)
@@ -29,11 +29,10 @@ int main()
     std::cout << "Average: " << avg << std::endl;
 
     // SecondLargest
-    int SecondLargest, Largest;
+    int SecondLargest = MyArray[0], Largest = MyArray[0];
     for (int i = 0; i < 10; i++)
     {
-        Largest = MyArray[0];
-        if (Largest > MyArray[i + 1])
+        if (MyArray[i] > Largest)
         {
             Largest = MyArray[i];
         }
@@ -43,11 +42,13 @@ int main()
 
     for (int i = 0; i < 10; i++)
     {
-        SecondLargest = MyArray[0];
-        if (SecondLargest < MyArray[i + 1])
-        {
+        SecondLargest = Largest;
+        if(MyArray[i] < SecondLargest){
+            SecondLargest = MyArray[i];
+        }else if (SecondLargest < Largest && MyArray[i] != SecondLargest){
             SecondLargest = MyArray[i];
         }
+        
     }
 
     std::cout << "Second largest: " << SecondLargest << std::endl;
