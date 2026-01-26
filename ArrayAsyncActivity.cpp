@@ -79,8 +79,6 @@ int main()
 
         std::cout << "Second largest: " << SecondLargest << std::endl; */
 
-    // Right rotation by k = 2
-
     // Reversed
     std::cout << "Reversed: ";
     for (int i = 10 - 1; i >= 0; i--)
