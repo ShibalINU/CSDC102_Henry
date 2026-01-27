@@ -53,6 +53,7 @@ int main()
         {
             secondLargest = MyArray[i];
         }
+        // same concept but reversed for second smallest
         if (MyArray[i] > smallest && MyArray[i] < secondSmallest)
         {
             secondSmallest = MyArray[i];
@@ -62,7 +63,7 @@ int main()
     std::cout << "Second largest: " << secondLargest << std::endl;
     std::cout << "Second smallest: " << secondSmallest << std::endl;
 
-    // MY ATTEMPT WITHOUT HELP FROM LESSONS AND REFERENCES NOT WORKING
+    // MY ATTEMPT WITHOUT HELP FROM LESSONS AND REFERENCES  [NOT WORKING]
 
     /*
         for (int i = 0; i < 10; i++)
@@ -87,6 +88,23 @@ int main()
     }
 
     std::cout << std::endl;
+
+    // move 2 spaces k
+    int k = 2;
+    for (int i = 0; i < k; i++)
+    {
+        int last = MyArray[9];
+        for (int i = 9; i > 0; i--)
+        {
+            MyArray[i] = MyArray[i - 1];
+        }
+        MyArray[0] = last;
+    }
+    std::cout << "Moving 2 spaces to the right: ";
+    for (int i = 0; i < 10; i++)
+    {
+        std::cout << MyArray[i] << " ";
+    }
 
     return 0;
 }

@@ -2,23 +2,54 @@
 
 int main()
 {
-    int n,
-    largest,
-    smallest,
-    sum = 0;
-    std::cout << "Enter size of array: ";
-    std::cin >> n;
-    
-    int arr[n];
-    
-    std::cout << "Input " << n << " array elements: " << std::endl;
-    for(int i = 0; i < n; i++){
-        std::cin >> i;
+    int arr[] = {34, 67, 23, 89, 2, 45, 78, 12, 90, 11};
+    int n = sizeof(arr) / sizeof(arr[0]); // this is just the size of the array so that it's dynamic hehehehe
+
+    int largest = arr[0],
+        smallest = arr[0],
+        sum = 0;
+
+    for (int i = 0; i < n; i++)
+    {
+        if (arr[i] > largest)
+        {
+            largest = arr[i];
+        }
+        if (arr[i] < smallest)
+        {
+            smallest = arr[i];
+        }
+        sum = sum + arr[i];
     }
-    
-    largest = arr[0];
-    smallest = arr[0];
-    
-    
+
+    double avg = sum / (double)n; // I Added (double) to ensure the decimals will show without changng the data type of the variable i declared earlier
+    std::cout << std::endl;
+    std::cout << "Largest: " << largest << std::endl;
+    std::cout << "Smallest: " << smallest << std::endl;
+    std::cout << "Sum: " << sum << std::endl;
+    std::cout << "Average: " << avg << std::endl;
+    std::cout << std::endl;
+
+    for (int i = 0; i < n; i++)
+    {
+        if (arr[i] > avg)
+        {
+            std::cout << arr[i] << " - Above average." << std::endl;
+        }
+        else
+        {
+            std::cout << arr[i] << " - Below or Equal average." << std::endl;
+        }
+    }
+
+    // optional activity Reverse array
+    // not final version just a simple one for reversing an array (output only)
+    std::cout << std::endl;
+    std::cout << "Reversed Array: ";
+    for (int i = n; i > 0; i--)
+    {
+        std::cout << arr[i - 1] << " ";
+    }
+
     return 0;
 }
