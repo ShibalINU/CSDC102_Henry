@@ -43,12 +43,18 @@ int main()
     }
 
     // optional activity Reverse array
-    // not final version just a simple one for reversing an array (output only)
-    std::cout << std::endl;
-    std::cout << "Reversed Array: ";
-    for (int i = n; i > 0; i--)
+    for (int i = 0; i < n / 2; i++)
     {
-        std::cout << arr[i - 1] << " ";
+        int temp = arr[i];
+        arr[i] = arr[n - i - 1];
+        arr[n - i - 1] = temp;
+    }
+
+    // not final version just a simple one for reversing an array (output only)
+    std::cout << "Reversed Array: ";
+    for (int i = 0; i < n; i++)
+    {
+        std::cout << arr[i] << " ";
     }
 
     return 0;
