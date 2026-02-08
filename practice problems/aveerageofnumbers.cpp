@@ -1,18 +1,15 @@
 #include <iostream>
-using namespace std;
 
-void doubleVal(int &x){
-    x = x * 2;
-    cout << "inside function: " << x << endl;
-}
-int main(){
-    
-    int x = 5;
-    cout << "Before function call: " << x << endl;
-    
-    doubleVal(x);
-    
-    cout << "after function call: " << x << endl;
+int main()
+{
 
-    return 0;
+    int arr[5] = {85, 90, 78, 92, 88};
+    int sum = 0;
+    for (int i = 0; i < 5; i++){
+        sum += arr[i];
+    }
+    float avg = ()sum / 5;
+    std::cout << avg;
+
+   return 0;
 }
