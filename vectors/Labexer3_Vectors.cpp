@@ -2,11 +2,12 @@
 #include <vector>
 using namespace std;
 
+
 void displayMenu(const vector<string>& menuItems,
                  const vector<double>& menuPrices) {
 
-    cout << "\n=============================\n";
-    cout << "            MENU\n";
+    cout << "\n=============================\n" << endl;
+    cout << "            MENU" << endl;
     cout << "=============================\n\n";
 
     for(int i = 0; i < menuItems.size(); i++) {
@@ -22,7 +23,7 @@ int login(string adminPasscode) {
     int role;
     string passcode;
 
-    cout << "\n[1] User   [2] Admin   [3] Shutdown\n";
+    cout << "\n[1] User   [2] Admin   [3] Shutdown" << endl;
     cout << "Enter choice: ";
     cin >> role;
 
@@ -31,7 +32,7 @@ int login(string adminPasscode) {
         cin >> passcode;
 
         if(passcode != adminPasscode)
-            return 0; // access denied
+            return 0;
     }
 
     return role;
@@ -48,17 +49,16 @@ void userMenu(vector<string>& menuItems,
     int choice;
 
     do {
-        cout << "\n====== USER MENU ======\n";
-        cout << "1. View Menu\n";
-        cout << "2. Add Item\n";
-        cout << "3. View Receipt\n";
-        cout << "4. Clear Receipt\n";
-        cout << "5. Remove Item from Receipt\n";
-        cout << "6. Exit\n";
+        cout << "\n====== USER MENU ======"<< endl;
+        cout << "1. View Menu" << endl;
+        cout << "2. Add Item" << endl;
+        cout << "3. View Receipt" << endl;
+        cout << "4. Clear Receipt" << endl;
+        cout << "5. Remove Item from Receipt" << endl;
+        cout << "6. Exit" << endl;
         cout << "Enter choice: ";
         cin >> choice;
-
-
+         
         if(choice == 1) {
             displayMenu(menuItems, menuPrices);
         }
@@ -72,7 +72,7 @@ void userMenu(vector<string>& menuItems,
             cin >> index;
 
             if(index < 0 || index >= menuItems.size()) {
-                cout << "Invalid index.\n";
+                cout << "Invalid index." << endl;
                 continue;
             }
 
@@ -95,19 +95,19 @@ void userMenu(vector<string>& menuItems,
                 receiptQuantities.push_back(quantity);
             }
 
-            cout << "Item added successfully!\n";
+            cout << "Item added successfully!" << endl;
         }
 
         else if(choice == 3) {
 
             if(receiptItems.empty()) {
-                cout << "Receipt is empty.\n";
+                cout << "Receipt is empty." << endl;
                 continue;
             }
 
             double total = 0;
 
-            cout << "\n====== RECEIPT ======\n";
+            cout << "\n====== RECEIPT ======" << endl;
 
             for(int i = 0; i < receiptItems.size(); i++) {
                 double subtotal = receiptPrices[i] * receiptQuantities[i];
@@ -134,7 +134,7 @@ void userMenu(vector<string>& menuItems,
                     cin >> payment;
 
                     if(payment < total)
-                        cout << "Insufficient amount.\n";
+                        cout << "Insufficient amount." << endl;
 
                 } while(payment < total);
 
@@ -144,7 +144,7 @@ void userMenu(vector<string>& menuItems,
                 receiptPrices.clear();
                 receiptQuantities.clear();
 
-                cout << "Payment successful. Receipt cleared.\n";
+                cout << "Payment successful. Receipt cleared." << endl;
             }
         }
 
@@ -175,15 +175,15 @@ void userMenu(vector<string>& menuItems,
             cin >> index;
 
             if(index < 0 || index >= receiptItems.size()) {
-                cout << "Invalid index.\n";
+                cout << "Invalid index." << endl;
                 continue;
             }
 
             if(receiptQuantities[index] > 1) {
 
                 int option;
-                cout << "1. Reduce by 1\n";
-                cout << "2. Remove entirely\n";
+                cout << "1. Reduce by 1" << endl;
+                cout << "2. Remove entirely" << endl;
                 cin >> option;
 
                 if(option == 1) {
@@ -201,7 +201,7 @@ void userMenu(vector<string>& menuItems,
                 receiptQuantities.erase(receiptQuantities.begin() + index);
             }
 
-            cout << "Item updated.\n";
+            cout << "Item updated." << endl;
         }
 
     } while(choice != 6);
@@ -214,12 +214,12 @@ void adminMenu(vector<string>& menuItems,
     int choice;
 
     do {
-        cout << "\n====== ADMIN MENU ======\n";
-        cout << "1. View Menu\n";
-        cout << "2. Add New Menu Item\n";
-        cout << "3. Edit Existing Menu Item\n";
-        cout << "4. Change Admin Passcode\n";
-        cout << "5. Exit\n";
+        cout << "\n====== ADMIN MENU ======" << endl;
+        cout << "1. View Menu" << endl;
+        cout << "2. Add New Menu Item" << endl;
+        cout << "3. Edit Existing Menu Item" << endl;
+        cout << "4. Change Admin Passcode" << endl;
+        cout << "5. Exit" << endl;
         cout << "Enter choice: ";
         cin >> choice;
 
@@ -243,9 +243,8 @@ void adminMenu(vector<string>& menuItems,
             menuItems.push_back(newItem);
             menuPrices.push_back(newPrice);
 
-            cout << "Item added successfully!\n";
+            cout << "Item added successfully!" << endl;
         }
-
 
         else if(choice == 3) {
 
@@ -256,36 +255,56 @@ void adminMenu(vector<string>& menuItems,
             cin >> index;
 
             if(index < 0 || index >= menuItems.size()) {
-                cout << "Invalid index.\n";
+                cout << "Invalid index." << endl;
                 continue;
             }
 
             int editChoice;
-            cout << "1. Edit Name\n";
-            cout << "2. Edit Price\n";
-            cout << "3. Both\n";
+            cout << "1. Edit Name" << endl;
+            cout << "2. Edit Price" << endl;
+            cout << "3. Both" << endl;
+            cout << "Enter choice: ";
             cin >> editChoice;
 
             cin.ignore();
 
-            if(editChoice == 1 || editChoice == 3) {
+            if(editChoice == 1) {
+
                 string newName;
                 cout << "Enter new name: ";
                 getline(cin, newName);
                 menuItems[index] = newName;
-            }
 
-            if(editChoice == 2 || editChoice == 3) {
+            }
+            else if(editChoice == 2) {
+
                 double newPrice;
                 cout << "Enter new price: ";
                 cin >> newPrice;
                 menuPrices[index] = newPrice;
+
+            }
+            else if(editChoice == 3) {
+
+                string newName;
+                double newPrice;
+
+                cout << "Enter new name: ";
+                getline(cin, newName);
+                menuItems[index] = newName;
+
+                cout << "Enter new price: ";
+                cin >> newPrice;
+                menuPrices[index] = newPrice;
+            }
+            else {
+                cout << "Invalid option." << endl;
+                continue;
             }
 
-            cout << "Item updated successfully!\n";
+            cout << "Item updated successfully!" << endl;
         }
 
- 
         else if(choice == 4) {
 
             string current, newPass;
@@ -297,10 +316,10 @@ void adminMenu(vector<string>& menuItems,
                 cout << "Enter new passcode: ";
                 cin >> newPass;
                 adminPasscode = newPass;
-                cout << "Passcode changed successfully!\n";
+                cout << "Passcode changed successfully!" << endl;
             }
             else {
-                cout << "Incorrect passcode.\n";
+                cout << "Incorrect passcode." << endl;
             }
         }
 
@@ -329,11 +348,11 @@ int main() {
             break;
 
         else {
-            cout << "Access Denied.\n";
+            cout << "Access Denied." << endl;
             break;
         }
     }
 
-    cout << "System Shutdown.\n";
+    cout << "System Shutdown." << endl;
     return 0;
 }
