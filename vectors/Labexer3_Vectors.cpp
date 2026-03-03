@@ -2,7 +2,6 @@
 #include <vector>
 using namespace std;
 
-// ================= DISPLAY MENU =================
 void displayMenu(const vector<string>& menuItems,
                  const vector<double>& menuPrices) {
 
@@ -18,7 +17,6 @@ void displayMenu(const vector<string>& menuItems,
     }
 }
 
-// ================= LOGIN =================
 int login(string adminPasscode) {
 
     int role;
@@ -39,7 +37,7 @@ int login(string adminPasscode) {
     return role;
 }
 
-// ================= USER MENU =================
+
 void userMenu(vector<string>& menuItems,
               vector<double>& menuPrices) {
 
@@ -60,12 +58,11 @@ void userMenu(vector<string>& menuItems,
         cout << "Enter choice: ";
         cin >> choice;
 
-        // VIEW MENU
+
         if(choice == 1) {
             displayMenu(menuItems, menuPrices);
         }
 
-        // ADD ITEM
         else if(choice == 2) {
 
             displayMenu(menuItems, menuPrices);
@@ -101,7 +98,6 @@ void userMenu(vector<string>& menuItems,
             cout << "Item added successfully!\n";
         }
 
-        // VIEW RECEIPT + CHECKOUT
         else if(choice == 3) {
 
             if(receiptItems.empty()) {
@@ -152,7 +148,6 @@ void userMenu(vector<string>& menuItems,
             }
         }
 
-        // CLEAR RECEIPT
         else if(choice == 4) {
 
             receiptItems.clear();
@@ -162,7 +157,6 @@ void userMenu(vector<string>& menuItems,
             cout << "Receipt cleared.\n";
         }
 
-        // REMOVE ITEM
         else if(choice == 5) {
 
             if(receiptItems.empty()) {
@@ -213,7 +207,6 @@ void userMenu(vector<string>& menuItems,
     } while(choice != 6);
 }
 
-// ================= ADMIN MENU =================
 void adminMenu(vector<string>& menuItems,
                vector<double>& menuPrices,
                string& adminPasscode) {
@@ -230,12 +223,10 @@ void adminMenu(vector<string>& menuItems,
         cout << "Enter choice: ";
         cin >> choice;
 
-        // VIEW MENU
         if(choice == 1) {
             displayMenu(menuItems, menuPrices);
         }
 
-        // ADD ITEM
         else if(choice == 2) {
 
             string newItem;
@@ -255,7 +246,7 @@ void adminMenu(vector<string>& menuItems,
             cout << "Item added successfully!\n";
         }
 
-        // EDIT ITEM
+
         else if(choice == 3) {
 
             displayMenu(menuItems, menuPrices);
@@ -294,7 +285,7 @@ void adminMenu(vector<string>& menuItems,
             cout << "Item updated successfully!\n";
         }
 
-        // CHANGE PASSCODE
+ 
         else if(choice == 4) {
 
             string current, newPass;
@@ -316,7 +307,7 @@ void adminMenu(vector<string>& menuItems,
     } while(choice != 5);
 }
 
-// ================= MAIN =================
+
 int main() {
 
     vector<string> menuItems = {"Burger","Fries","Coke","Chicken"};
