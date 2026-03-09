@@ -6,19 +6,10 @@ using namespace std;
 //--------------------------------------------------------------------Main functions
 
 int login(string &adminPasscode) {
-    int role;
-    string passcode;
-
-    cout << "[1] Client   [2] Admin   [3] Shutdown\n";
-    cout << "Enter choice: ";
-    cin >> role;
-
-    return role;
 }
 
 // Display helper (const reference - read-only)
-void displayMenu(const vector<string> &bankNames,
-                 const vector<double> &localFees) {
+void displayMenu(string bankNames[], double localFees[], double intlFees[], double dailyLimits[]) {
 };
 
 void clientMenu(vector<string> &cardNumbers,
@@ -26,6 +17,10 @@ void clientMenu(vector<string> &cardNumbers,
                 vector<double> &balances
                 /*, ... other vectors if needed */)
 {
+    cout << "Enter Card Number: ";
+    cout << "Enter PIN: ';
+
+    
     int choiceUser;
     cout << "Client Menu: " << endl;
     cout << "1. Check Balance" << endl;
