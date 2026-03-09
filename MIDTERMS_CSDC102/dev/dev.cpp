@@ -9,11 +9,15 @@ int login(string &adminPasscode)
 {
     int roleChoice;
     string passcode;
-    cout << "Welcome to the ATM System!" << endl;
+    cout << "==========ATM System!==========" << endl;
     cout << "\n[1] User   [2] Admin   [3] Shutdown" << endl;
     cout << "Enter your choice: ";
     cin >> roleChoice;
-    if (roleChoice == 2)
+    if (roleChoice == 1)
+    {
+        return 1; // Client role
+    }
+    else if (roleChoice == 2)
     {
         cout << "Enter admin passcode: ";
         cin >> passcode;
@@ -173,7 +177,7 @@ int main()
     vector<double> transactionFees;
     vector<int> transactionQuantities;
 
-    string adminPasscode = "1212"; // Default
+    string adminPasscode = "1212"; // Default password
 
     int role = login(adminPasscode);
 
@@ -184,6 +188,11 @@ int main()
     else if (role == 2)
     {
         adminMenu(cardNumbers, balances, adminPasscode);
+    }
+    else
+    {
+        cout << "Shutting down..." << endl;
+        return 0;
     }
     return 0;
 }
