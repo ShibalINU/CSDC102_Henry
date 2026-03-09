@@ -8,13 +8,22 @@ using namespace std;
 int login(string &adminPasscode);
 
 // Display helper (const reference - read-only)
-void displayMenu(const vector<string> &items,
-                 const vector<double> &prices);
+void displayMenu(const vector<string> &bankNames,
+                 const vector<double> &localFees)
+{
+    cout << "Menu:" << endl;
+    for (size_t i = 0; i < bankNames.size(); i++)
+    {
+        cout << i << ". " << bankNames[i] << " - ₱" << localFees[i] << endl;
+    }
+};
 
 void clientMenu(vector<string> &cardNumbers,
                 vector<string> &pins,
                 vector<double> &balances
-                /*, ... other vectors if needed */);
+                /*, ... other vectors if needed */) {
+
+};
 
 void adminMenu(vector<string> &cardNumbers,
                vector<double> &balances,

@@ -19,3 +19,67 @@ Bank: Security Bank
 Local Fee: 15
 International Fee: 100
 Daily Limit: 60000
+
+
+Login();
+Display
+    -user
+    -admin
+        -admin passcode verification
+        -role == 1
+            -client
+        -role == 2
+            -admin
+        -role == 3
+            -shutdown
+
+displayMenu();
+    --Display for loop
+        --insert card
+        
+
+
+clientMenu()
+        ->Choose bank 
+        //*insert processes*// 
+        ->Check balance
+        //*insert processes*//
+        ->Withdraw money
+        //*insert processes*//
+        ->Transfer funds
+        //*insert processes*//
+        ->View transaction history
+        //*insert processes*//
+        ->Exit 
+            -return 0;
+
+adminMenu()
+    ->cash management
+        -view current cash
+        -add replenish cash during maintenance window(8:00 - 8:15aam)
+        -track total cash available
+
+     //*insert processes*//
+
+    ->User account management
+        -create new accounts
+        -view all accounts and balances
+        -delete/deactivate account and balances
+        -reset account passwords
+
+     //*insert processes*//
+
+    ->Admin credential passcode change
+        -change admin passcode (verify with current passcode)
+        -view list of all admin users (without showing passcodes)
+     //*insert processes*//
+     ->Exit
+        -return 0;
+
+main()
+    ->entry point
+    ->initialization
+    ->main loop
+    ->role routing
+        -if else statement for role
+            role == 1, 2, 3
