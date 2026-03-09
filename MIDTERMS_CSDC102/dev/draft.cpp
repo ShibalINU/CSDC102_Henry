@@ -146,11 +146,6 @@ void adminMenu(vector<string> &cardNumbers,
         // User management
         if (ChoiceUserManagement == 1)
         {
-            cardNumbers.push_back("1234567890123456");
-            encodedPINs.push_back(encodeString("1234"));
-            balances.push_back(10000);
-            userBanks.push_back("BDO");
-            accountTypes.push_back("Local");
             for (size_t i = 0; i < cardNumbers.size(); ++i)
             {
                 // this is just for checking purposes to see if the new account is added to the vectors
@@ -166,10 +161,7 @@ void adminMenu(vector<string> &cardNumbers,
         {
             for (int i = 0; i < cardNumbers.size(); ++i)
             {
-                cout << "Card: " << cardNumbers[i]
-                     << ", Bank: " << userBanks[i]
-                     << ", Type: " << accountTypes[i]
-                     << ", Balance: " << balances[i] << endl;
+                cout << cardNumbers[i] << " - " << userBanks[i] << ", " << accountTypes[i] << ": " << balances[i] << endl;
             }
             // Add new accountX`
         }
@@ -216,19 +208,19 @@ int main()
     int denominations[NUM_DENOMINATIONS] = {500, 1000};
     int billCount[NUM_DENOMINATIONS] = {500, 500}; // Current count of each
 
-    vector<string> cardNumbers;
+    vector<string> cardNumbers = {"12345678910", "10987654321", "11111111111"};
     // Parallel vectors - keep in sync!
 
-    vector<string> encodedPINs;
+    vector<string> encodedPINs = {"6767", "9876", "6543"};
     // Encoded passwords
 
-    vector<double> balances;
+    vector<double> balances = {9000, 5600, 6700};
     // Account balances
 
-    vector<string> userBanks;
+    vector<string> userBanks = {"BPI", "BDO", "Metrobank"};
     // Which bank
 
-    vector<string> accountTypes;
+    vector<string> accountTypes = {"Local", "International", "International"};
     // "Local" or "International"
 
     // For each account's transaction history
