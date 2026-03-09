@@ -1,0 +1,21 @@
+//Banks and their description
+
+Bank: BDO
+Local Fee: 25
+International Fee: 150
+Daily Limit: 50000
+
+Bank: BPI
+Local Fee: 20
+International Fee: 125
+Daily Limit: 75000
+
+Bank: Metrobank
+Local Fee: 30
+International Fee: 200
+Daily Limit: 100000
+
+Bank: Security Bank
+Local Fee: 15
+International Fee: 100
+Daily Limit: 60000
