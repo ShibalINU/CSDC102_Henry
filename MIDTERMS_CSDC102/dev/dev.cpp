@@ -5,7 +5,16 @@ using namespace std;
 
 //--------------------------------------------------------------------Main functions
 
-int login(string &adminPasscode);
+int login(string &adminPasscode) {
+    int role;
+    string passcode;
+
+    cout << "[1] Client   [2] Admin   [3] Shutdown\n";
+    cout << "Enter choice: ";
+    cin >> role;
+
+    return role;
+}
 
 // Display helper (const reference - read-only)
 void displayMenu(const vector<string> &bankNames,
