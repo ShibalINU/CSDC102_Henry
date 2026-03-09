@@ -5,11 +5,34 @@ using namespace std;
 
 //--------------------------------------------------------------------Main functions
 
-int login(string &adminPasscode) {
-}
+int login(string &adminPasscode)
+{
+    int roleChoice;
+    string passcode;
+    cout << "Welcome to the ATM System!" << endl;
+    cout << "\n[1] User   [2] Admin   [3] Shutdown" << endl;
+    cout << "Enter your choice: ";
+    cin >> roleChoice;
+    if (roleChoice == 2)
+    {
+        cout << "Enter admin passcode: ";
+        cin >> passcode;
+        if (passcode != adminPasscode)
+        {
+            cout << "Incorrect passcode. Access denied." << endl;
+            return 0; // Invalid role
+        }
+        else
+        {
+            cout << "Admin access granted." << endl;
+            return 2; // Admin role
+        }
+    }
+};
 
 // Display helper (const reference - read-only)
-void displayMenu(string bankNames[], double localFees[], double intlFees[], double dailyLimits[]) {
+void displayMenu(const vector<string> &bankNames,
+                 const vector<double> &localFees) {
 };
 
 void clientMenu(vector<string> &cardNumbers,
@@ -17,10 +40,6 @@ void clientMenu(vector<string> &cardNumbers,
                 vector<double> &balances
                 /*, ... other vectors if needed */)
 {
-    cout << "Enter Card Number: ";
-    cout << "Enter PIN: ';
-
-    
     int choiceUser;
     cout << "Client Menu: " << endl;
     cout << "1. Check Balance" << endl;
@@ -154,10 +173,17 @@ int main()
     vector<double> transactionFees;
     vector<int> transactionQuantities;
 
-    // for trial
-    string adminPasscode = "admin123"; // Default
+    string adminPasscode = "1212"; // Default
 
-    adminMenu(cardNumbers, balances, adminPasscode);
+    int role = login(adminPasscode);
 
+    if (role == 1)
+    {
+        clientMenu(cardNumbers, encodedPINs, balances);
+    }
+    else if (role == 2)
+    {
+        adminMenu(cardNumbers, balances, adminPasscode);
+    }
     return 0;
 }
