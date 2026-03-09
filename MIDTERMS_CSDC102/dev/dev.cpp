@@ -34,14 +34,36 @@ int login(string &adminPasscode)
     }
 };
 
+string encodeString(string plain)
+{
+    string encoded = plain;
+    for (char &c : encoded)
+    {
+        c += 3; // Simple Caesar cipher
+    }
+    return encoded;
+};
+
+string decodeString(string encoded)
+{
+    string decoded = encoded;
+    for (char &c : decoded)
+    {
+        c -= 3; // Reverse the Caesar cipher
+    }
+    return decoded;
+};
+
 // Display helper (const reference - read-only)
 void displayMenu(const vector<string> &bankNames,
                  const vector<double> &localFees) {
 };
 
 void clientMenu(vector<string> &cardNumbers,
-                vector<string> &pins,
-                vector<double> &balances
+                vector<double> &balances,
+                vector<string> &encodedPINs,
+                vector<string> &userBanks,
+                vector<string> &accountTypes
                 /*, ... other vectors if needed */)
 {
     int choiceUser;
@@ -84,8 +106,10 @@ void clientMenu(vector<string> &cardNumbers,
 
 void adminMenu(vector<string> &cardNumbers,
                vector<double> &balances,
-               string &adminPasscode
-               /*, ... other vectors if needed */)
+               vector<string> &encodedPINs,
+               string &adminPasscode,
+               vector<string> &userBanks,
+               vector<string> &accountTypes)
 {
     int choiceAdmin;
     cout << "Admin Menu: " << endl;
@@ -118,6 +142,35 @@ void adminMenu(vector<string> &cardNumbers,
         cout << "\nEnter choice: ";
         cin >> ChoiceUserManagement;
         // User management
+        if (ChoiceUserManagement == 1)
+        {
+            // View all accounts and balances
+        }
+        else if (ChoiceUserManagement == 2)
+        {
+            // Add new account
+
+            cardNumbers.push_back("1234567890123456");
+            encodedPINs.push_back(encodeString("1234"));
+            balances.push_back(10000);
+            userBanks.push_back("BDO");
+            accountTypes.push_back("Local");
+            for (size_t i = 0; i < cardNumbers.size(); ++i)
+            {
+                cout << "Card: " << cardNumbers[i]
+                     << ", Bank: " << userBanks[i]
+                     << ", Type: " << accountTypes[i]
+                     << ", Balance: " << balances[i] << endl;
+            }
+        }
+        else if (ChoiceUserManagement == 3)
+        {
+            // delete/ deactivate account
+        }
+        else if (ChoiceUserManagement == 4)
+        {
+            // Reset account passwords
+        }
     }
     else if (choiceAdmin == 3)
     {
@@ -134,8 +187,7 @@ void adminMenu(vector<string> &cardNumbers,
 };
 
 //--------------------------------------------------------------------Utility Functions
-string encodeString(string plain);
-string decodeString(string encoded);
+
 bool validateCardNumber(string card);
 double calculateFeeRecursive(double amount, int iterations);
 void logTransaction(const string &cardNum,
@@ -177,22 +229,24 @@ int main()
     vector<double> transactionFees;
     vector<int> transactionQuantities;
 
-    string adminPasscode = "1212"; // Default password
+    string adminPasscode = "6767"; // Default password
 
     int role = login(adminPasscode);
-
-    if (role == 1)
+    while (true)
     {
-        clientMenu(cardNumbers, encodedPINs, balances);
-    }
-    else if (role == 2)
-    {
-        adminMenu(cardNumbers, balances, adminPasscode);
-    }
-    else
-    {
-        cout << "Shutting down..." << endl;
-        return 0;
+        if (role == 1)
+        {
+            clientMenu(cardNumbers, balances, encodedPINs, userBanks, accountTypes);
+        }
+        else if (role == 2)
+        {
+            adminMenu(cardNumbers, balances, encodedPINs, adminPasscode, userBanks, accountTypes);
+        }
+        else
+        {
+            cout << "Shutting down..." << endl;
+            return 0;
+        }
     }
     return 0;
 }
