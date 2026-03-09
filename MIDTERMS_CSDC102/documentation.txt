@@ -40,7 +40,9 @@ displayMenu();
 
 
 clientMenu()
-        ->Choose bank 
+        ->Choose bank
+            -BD0, METROBANK ...
+            -local or Internatio 
         //*insert processes*// 
         ->Check balance
         //*insert processes*//

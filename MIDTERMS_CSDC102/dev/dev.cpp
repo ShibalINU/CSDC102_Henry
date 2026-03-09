@@ -9,26 +9,90 @@ int login(string &adminPasscode);
 
 // Display helper (const reference - read-only)
 void displayMenu(const vector<string> &bankNames,
-                 const vector<double> &localFees)
-{
-    cout << "Menu:" << endl;
-    for (size_t i = 0; i < bankNames.size(); i++)
-    {
-        cout << i << ". " << bankNames[i] << " - ₱" << localFees[i] << endl;
-    }
+                 const vector<double> &localFees) {
 };
 
 void clientMenu(vector<string> &cardNumbers,
                 vector<string> &pins,
                 vector<double> &balances
-                /*, ... other vectors if needed */) {
+                /*, ... other vectors if needed */)
+{
+    int choiceUser;
+    cout << "Client Menu: " << endl;
+    cout << "1. Check Balance" << endl;
+    cout << "2. Withdraw Cash" << endl;
+    cout << "3. Deposit Cash" << endl;
+    cout << "4. Transfer Funds" << endl;
+    cout << "5. View Transaction History" << endl;
+    cout << "6. Exit" << endl;
+    //-----
+    cout << "\nEnter your choice: ";
+    cin >> choiceUser;
 
+    if (choiceUser == 1)
+    {
+        // Check balance
+    }
+    else if (choiceUser == 2)
+    {
+        // Withdraw cash
+    }
+    else if (choiceUser == 3)
+    {
+        // Deposit cash
+    }
+    else if (choiceUser == 4)
+    {
+        // Transfer funds
+    }
+    else if (choiceUser == 5)
+    {
+        // View transaction history
+    }
+    else
+    {
+        cout << "Exiting..." << endl;
+    }
 };
 
 void adminMenu(vector<string> &cardNumbers,
                vector<double> &balances,
                string &adminPasscode
-               /*, ... other vectors if needed */);
+               /*, ... other vectors if needed */)
+{
+    int choiceAdmin;
+    cout << "Admin Menu: " << endl;
+    cout << "1. Cash Management" << endl;
+    cout << "2. User Management" << endl;
+    cout << "3. Admin Credentials" << endl;
+    cout << "5. Exit" << endl;
+    cin >> choiceAdmin;
+
+    if (choiceAdmin == 1)
+    {
+        int ChoiceCashManagement;
+        cout << "Cash Management: " << endl;
+        cout << "1. View current cash" << endl;
+        cout << "2. Replenish cash" << endl;
+        cout << "3. Track total cash" << endl;
+        cout << "4. Exit" << endl;
+        cout << "\nEnter choice: ";
+        cin >> ChoiceCashManagement;
+        // Cash management
+    }
+    else if (choiceAdmin == 2)
+    {
+        // User management
+    }
+    else if (choiceAdmin == 3)
+    {
+        // Admin credentials
+    }
+    else
+    {
+        cout << "Exiting..." << endl;
+    }
+};
 
 //--------------------------------------------------------------------Utility Functions
 string encodeString(string plain);
@@ -73,6 +137,11 @@ int main()
     vector<double> transactionAmounts;
     vector<double> transactionFees;
     vector<int> transactionQuantities;
+
+    // for trial
+    /* string adminPasscode = "admin123"; // Default
+
+    adminMenu(cardNumbers, balances, adminPasscode); */
 
     return 0;
 }
