@@ -65,9 +65,8 @@ void adminMenu(vector<string> &cardNumbers,
     cout << "1. Cash Management" << endl;
     cout << "2. User Management" << endl;
     cout << "3. Admin Credentials" << endl;
-    cout << "5. Exit" << endl;
+    cout << "4. Exit" << endl;
     cin >> choiceAdmin;
-
     if (choiceAdmin == 1)
     {
         int ChoiceCashManagement;
@@ -82,15 +81,28 @@ void adminMenu(vector<string> &cardNumbers,
     }
     else if (choiceAdmin == 2)
     {
+        int ChoiceUserManagement;
+        cout << "User Management: " << endl;
+        cout << "1. View all accounts and balances" << endl;
+        cout << "2. Add new account" << endl;
+        cout << "3. delete/ deactivate account" << endl;
+        cout << "4. Reset account passwords" << endl;
+        cout << "5. Exit" << endl;
+        cout << "\nEnter choice: ";
+        cin >> ChoiceUserManagement;
         // User management
     }
     else if (choiceAdmin == 3)
     {
+
         // Admin credentials
-    }
-    else
-    {
-        cout << "Exiting..." << endl;
+        int ChoiceAdminCredentials;
+        cout << "Admin Credentials: " << endl;
+        cout << "1. Change Admin passcode" << endl;
+        cout << "2. View all Admin users" << endl;
+        cout << "3. Exit" << endl;
+        cout << "\nEnter choice: ";
+        cin >> ChoiceAdminCredentials;
     }
 };
 
@@ -139,9 +151,9 @@ int main()
     vector<int> transactionQuantities;
 
     // for trial
-    /* string adminPasscode = "admin123"; // Default
+    string adminPasscode = "admin123"; // Default
 
-    adminMenu(cardNumbers, balances, adminPasscode); */
+    adminMenu(cardNumbers, balances, adminPasscode);
 
     return 0;
 }
