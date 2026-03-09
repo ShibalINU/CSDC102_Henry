@@ -1,0 +1,1767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recursion Visualizer</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23050f09'/%3E%3Ccircle cx='16' cy='8' r='4' fill='%2300bf63'/%3E%3Ccircle cx='8' cy='22' r='4' fill='%23009e52'/%3E%3Ccircle cx='24' cy='22' r='4' fill='%23009e52'/%3E%3Cline x1='16' y1='12' x2='8' y2='18' stroke='%2300bf63' stroke-width='1.5'/%3E%3Cline x1='16' y1='12' x2='24' y2='18' stroke='%2300bf63' stroke-width='1.5'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #00bf63;
+    --green-dark: #009e52;
+    --green-dim: rgba(0,191,99,0.15);
+    --green-glow: rgba(0,191,99,0.4);
+    --bg: #050f09;
+    --bg2: #0a1a10;
+    --bg3: #0f2518;
+    --card: #0d1f14;
+    --border: rgba(0,191,99,0.2);
+    --text: #e8f5ee;
+    --text-dim: rgba(232,245,238,0.5);
+    --mono: 'Montserrat', sans-serif;
+    --serif: 'Lora', serif;
+    --header-h: 100px;
+    --topbar-h: 44px;
+    --stats-h: 52px;
+    --bottom-h: 44px;
+    --footer-h: 32px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,191,99,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,191,99,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: relative;
+    z-index: 10;
+    height: var(--header-h);
+    padding: 10px 24px 0;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(0,191,99,0.06) 0%, transparent 100%);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .header-left { flex: 1; }
+
+  .header-eyebrow {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    color: var(--green);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  header h1 {
+    font-family: var(--serif);
+    font-size: 1.8rem;
+    font-weight: 600;
+    line-height: 1.1;
+    color: var(--text);
+  }
+
+  header h1 em { font-style: italic; color: var(--green); }
+
+  header p {
+    font-family: var(--serif);
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    font-style: italic;
+    margin-top: 2px;
+  }
+
+  /* ── ALGO DROPDOWN ── */
+  .algo-dropdown-wrap {
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .algo-dropdown-btn {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 10px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 220px;
+    transition: all 0.2s;
+  }
+
+  .algo-dropdown-btn:hover, .algo-dropdown-btn.open {
+    border-color: var(--green);
+    background: rgba(0,191,99,0.08);
+  }
+
+  .algo-dropdown-btn .current-algo { flex: 1; text-align: left; }
+
+  .algo-dropdown-btn .caret {
+    color: var(--green);
+    transition: transform 0.2s;
+    font-size: 10px;
+  }
+
+  .algo-dropdown-btn.open .caret { transform: rotate(180deg); }
+
+  .algo-badge {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 20px;
+    text-transform: uppercase;
+  }
+  .diff-easy { background: rgba(0,191,99,0.15); color: #00bf63; }
+  .diff-medium { background: rgba(255,180,0,0.15); color: #ffb400; }
+  .diff-hard { background: rgba(255,80,80,0.15); color: #ff5050; }
+
+  .algo-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    width: 300px;
+    background: #0a1c11;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    z-index: 9999;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    display: none;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  .algo-menu.open { display: block; }
+
+  .menu-section-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: rgba(0,191,99,0.4);
+    text-transform: uppercase;
+    padding: 10px 14px 4px;
+    border-top: 1px solid rgba(0,191,99,0.1);
+  }
+
+  .menu-section-label:first-child { border-top: none; }
+
+  .menu-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    border-left: 3px solid transparent;
+  }
+
+  .menu-item:hover {
+    background: var(--green-dim);
+    border-left-color: rgba(0,191,99,0.4);
+  }
+
+  .menu-item.active {
+    background: rgba(0,191,99,0.12);
+    border-left-color: var(--green);
+  }
+
+  .menu-item-name {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .menu-item.active .menu-item-name { color: var(--green); }
+
+  .menu-item-tag {
+    font-size: 9px;
+    color: var(--text-dim);
+    font-family: var(--serif);
+    font-style: italic;
+    margin-top: 1px;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  .app-body {
+    position: relative;
+    z-index: 1;
+    height: calc(100vh - var(--header-h) - var(--footer-h));
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* top bar: title + controls */
+  .algo-header {
+    height: var(--topbar-h);
+    padding: 0 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-shrink: 0;
+    background: var(--bg2);
+  }
+
+  .algo-title {
+    font-family: var(--serif);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  .algo-desc {
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--text-dim);
+    font-size: 0.72rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 340px;
+  }
+
+  .title-block { display: flex; flex-direction: column; gap: 2px; }
+
+  .controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  label {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    font-weight: 700;
+  }
+
+  input[type=number], input[type=text] {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    padding: 5px 8px;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    width: 80px;
+    outline: none;
+  }
+
+  input[type=text] { width: 120px; }
+
+  input[type=number]:focus, input[type=text]:focus { border-color: var(--green); }
+
+  input[type=range] {
+    width: 80px;
+    padding: 0;
+    accent-color: var(--green);
+    cursor: pointer;
+  }
+
+  .btn {
+    background: var(--green);
+    color: #000;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .btn:hover { background: #00d970; transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--green);
+    border: 1px solid var(--green);
+  }
+
+  .btn-ghost:hover { background: var(--green-dim); }
+
+  /* stats bar */
+  .stats-bar {
+    height: var(--stats-h);
+    display: flex;
+    gap: 24px;
+    padding: 0 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .stat { text-align: center; }
+
+  .stat-val {
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: var(--green);
+    line-height: 1;
+  }
+
+  .stat-lbl {
+    font-size: 9px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-top: 1px;
+  }
+
+  /* panels */
+  .panels {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  .panel {
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  .panel:last-child { border-right: none; }
+
+  .panel-header {
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: var(--green);
+    text-transform: uppercase;
+    background: var(--bg2);
+    flex-shrink: 0;
+  }
+
+  .panel-body {
+    padding: 12px 16px;
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+  }
+
+  /* pseudocode */
+  .pseudocode {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    line-height: 1.85;
+    white-space: pre;
+    color: var(--text-dim);
+  }
+
+  .pseudocode .kw { color: #ff79c6; }
+  .pseudocode .fn { color: var(--green); font-weight: 700; }
+  .pseudocode .cm { color: #6272a4; font-style: italic; }
+  .pseudocode .num { color: #bd93f9; }
+  .pseudocode .line-active {
+    background: rgba(0,191,99,0.12);
+    display: block;
+    border-left: 3px solid var(--green);
+    padding-left: 4px;
+    margin-left: -4px;
+    color: var(--text);
+    border-radius: 0 3px 3px 0;
+  }
+
+  /* call stack */
+  .call-stack {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 5px;
+  }
+
+  .stack-frame {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 7px 10px;
+    font-size: 0.72rem;
+    font-family: var(--mono);
+    animation: slideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stack-frame::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--green);
+    opacity: 0.5;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .frame-fn { color: var(--green); font-weight: 700; }
+  .frame-return { margin-top: 2px; color: var(--text-dim); font-size: 0.68rem; }
+  .frame-return span { color: #bd93f9; }
+
+  .stack-empty {
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--text-dim);
+    font-size: 0.82rem;
+    text-align: center;
+    padding: 30px 10px;
+  }
+
+  /* tabs */
+  .tab-strip {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+    flex-shrink: 0;
+  }
+
+  .tab {
+    padding: 8px 16px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    color: var(--text-dim);
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+
+  .tab.active { color: var(--green); border-bottom-color: var(--green); }
+
+  .tab-content { display: none; flex: 1; overflow: hidden; flex-direction: column; }
+  .tab-content.active { display: flex; }
+
+  /* tree container */
+  .tree-container {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    cursor: grab;
+    min-height: 0;
+  }
+
+  .tree-container:active { cursor: grabbing; }
+
+  .tree-viewport {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+
+  svg.tree-svg {
+    display: block;
+    transform-origin: 0 0;
+  }
+
+  .zoom-controls {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    z-index: 10;
+  }
+
+  .zoom-btn {
+    width: 26px;
+    height: 26px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--green);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    font-family: var(--mono);
+  }
+
+  .zoom-btn:hover { background: var(--green-dim); border-color: var(--green); }
+
+  /* bottom strip */
+  .bottom-strip {
+    height: var(--bottom-h);
+    border-top: 1px solid var(--border);
+    background: var(--bg2);
+    padding: 0 20px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .log-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: var(--green);
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+
+  #exec-log {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    overflow-x: auto;
+    white-space: nowrap;
+    flex: 1;
+  }
+
+  #exec-log .log-call { color: var(--green); }
+  #exec-log .log-return { color: #bd93f9; }
+
+  .speed-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .result-box {
+    margin: 10px 0;
+    background: rgba(0,191,99,0.08);
+    border: 1px solid rgba(0,191,99,0.3);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+  }
+
+  .result-box strong { color: var(--green); }
+
+  /* palindrome custom word input */
+  .palin-input-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  /* FOOTER */
+  footer {
+    height: var(--footer-h);
+    border-top: 1px solid var(--border);
+    background: var(--bg2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 10;
+  }
+
+  .footer-text {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    color: rgba(0,191,99,0.45);
+    text-transform: uppercase;
+  }
+
+  .footer-text span { color: var(--green); }
+
+  /* scrollbars */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 9px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(0,191,99,0.4); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="header-eyebrow">↻ Interactive Learning Tool</div>
+    <h1>Recursion <em>Visualizer</em></h1>
+    <p>Step through recursive algorithms — from first principles to the deeply elegant.</p>
+  </div>
+
+  <!-- Algorithm Dropdown -->
+  <div class="algo-dropdown-wrap">
+    <button class="algo-dropdown-btn" id="dropdown-btn" onclick="toggleMenu()">
+      <span class="current-algo" id="dropdown-label">Factorial</span>
+      <span class="algo-badge diff-easy" id="dropdown-badge">Easy</span>
+      <span class="caret">▼</span>
+    </button>
+    <div class="algo-menu" id="algo-menu">
+      <div class="menu-section-label">— Classics —</div>
+      <div class="menu-item active" data-algo="factorial" onclick="selectAlgo('factorial')"><div><div class="menu-item-name">Factorial</div><div class="menu-item-tag">n!</div></div><span class="algo-badge diff-easy">Easy</span></div>
+      <div class="menu-item" data-algo="fibonacci" onclick="selectAlgo('fibonacci')"><div><div class="menu-item-name">Fibonacci</div><div class="menu-item-tag">fib(n)</div></div><span class="algo-badge diff-easy">Easy</span></div>
+      <div class="menu-item" data-algo="power" onclick="selectAlgo('power')"><div><div class="menu-item-name">Power</div><div class="menu-item-tag">x^n</div></div><span class="algo-badge diff-easy">Easy</span></div>
+      <div class="menu-item" data-algo="gcd" onclick="selectAlgo('gcd')"><div><div class="menu-item-name">GCD (Euclidean)</div><div class="menu-item-tag">gcd(a,b)</div></div><span class="algo-badge diff-easy">Easy</span></div>
+      <div class="menu-item" data-algo="sum_digits" onclick="selectAlgo('sum_digits')"><div><div class="menu-item-name">Sum of Digits</div><div class="menu-item-tag">Digit decomp.</div></div><span class="algo-badge diff-easy">Easy</span></div>
+      <div class="menu-item" data-algo="collatz" onclick="selectAlgo('collatz')"><div><div class="menu-item-name">Collatz Conjecture</div><div class="menu-item-tag">3n+1 mystery</div></div><span class="algo-badge diff-easy">Easy</span></div>
+
+      <div class="menu-section-label">— Strings —</div>
+      <div class="menu-item" data-algo="palindrome" onclick="selectAlgo('palindrome')"><div><div class="menu-item-name">Palindrome Check</div><div class="menu-item-tag">String mirrors</div></div><span class="algo-badge diff-easy">Easy</span></div>
+      <div class="menu-item" data-algo="reverse_string" onclick="selectAlgo('reverse_string')"><div><div class="menu-item-name">Reverse String</div><div class="menu-item-tag">Char by char</div></div><span class="algo-badge diff-easy">Easy</span></div>
+      <div class="menu-item" data-algo="count_occurrences" onclick="selectAlgo('count_occurrences')"><div><div class="menu-item-name">Count Occurrences</div><div class="menu-item-tag">Substring scan</div></div><span class="algo-badge diff-easy">Easy</span></div>
+
+      <div class="menu-section-label">— Search & Sort —</div>
+      <div class="menu-item" data-algo="binary_search" onclick="selectAlgo('binary_search')"><div><div class="menu-item-name">Binary Search</div><div class="menu-item-tag">O(log n)</div></div><span class="algo-badge diff-medium">Medium</span></div>
+      <div class="menu-item" data-algo="merge_sort" onclick="selectAlgo('merge_sort')"><div><div class="menu-item-name">Merge Sort</div><div class="menu-item-tag">Divide & Conquer</div></div><span class="algo-badge diff-medium">Medium</span></div>
+      <div class="menu-item" data-algo="quicksort" onclick="selectAlgo('quicksort')"><div><div class="menu-item-name">Quicksort</div><div class="menu-item-tag">Partition</div></div><span class="algo-badge diff-hard">Hard</span></div>
+
+      <div class="menu-section-label">— Trees & Structure —</div>
+      <div class="menu-item" data-algo="tower_hanoi" onclick="selectAlgo('tower_hanoi')"><div><div class="menu-item-name">Tower of Hanoi</div><div class="menu-item-tag">2^n - 1 moves</div></div><span class="algo-badge diff-medium">Medium</span></div>
+      <div class="menu-item" data-algo="flatten" onclick="selectAlgo('flatten')"><div><div class="menu-item-name">Flatten Array</div><div class="menu-item-tag">Tree traversal</div></div><span class="algo-badge diff-medium">Medium</span></div>
+      <div class="menu-item" data-algo="tree_depth" onclick="selectAlgo('tree_depth')"><div><div class="menu-item-name">Tree Max Depth</div><div class="menu-item-tag">DFS</div></div><span class="algo-badge diff-medium">Medium</span></div>
+      <div class="menu-item" data-algo="count_nodes" onclick="selectAlgo('count_nodes')"><div><div class="menu-item-name">Count Tree Nodes</div><div class="menu-item-tag">Tree recursion</div></div><span class="algo-badge diff-medium">Medium</span></div>
+
+      <div class="menu-section-label">— Advanced —</div>
+      <div class="menu-item" data-algo="permutations" onclick="selectAlgo('permutations')"><div><div class="menu-item-name">Permutations</div><div class="menu-item-tag">Backtracking</div></div><span class="algo-badge diff-hard">Hard</span></div>
+      <div class="menu-item" data-algo="subsets" onclick="selectAlgo('subsets')"><div><div class="menu-item-name">Subsets (Power Set)</div><div class="menu-item-tag">2^n subsets</div></div><span class="algo-badge diff-hard">Hard</span></div>
+      <div class="menu-item" data-algo="coin_change" onclick="selectAlgo('coin_change')"><div><div class="menu-item-name">Coin Change</div><div class="menu-item-tag">Memoized DP</div></div><span class="algo-badge diff-hard">Hard</span></div>
+      <div class="menu-item" data-algo="flood_fill" onclick="selectAlgo('flood_fill')"><div><div class="menu-item-name">Flood Fill</div><div class="menu-item-tag">Grid DFS</div></div><span class="algo-badge diff-hard">Hard</span></div>
+    </div>
+  </div>
+</header>
+
+<div class="app-body">
+  <!-- Top Controls Bar -->
+  <div class="algo-header">
+    <div class="title-block">
+      <div class="algo-title" id="algo-title">Factorial</div>
+      <div class="algo-desc" id="algo-desc">Multiply n by all positive integers less than it</div>
+    </div>
+    <div class="controls">
+      <label for="input-n" id="input-label">Input:</label>
+      <input type="number" id="input-n" value="5" min="0" max="10" onchange="reset()">
+      <!-- String algo custom inputs (hidden by default) -->
+      <div id="string-custom-wrap" style="display:none;" class="palin-input-row">
+        <label id="string-custom-label">Custom word:</label>
+        <input type="text" id="string-custom" placeholder="e.g. racecar" oninput="reset()">
+        <span id="count-char-wrap" style="display:none;margin-left:4px;align-items:center;gap:4px;">
+          <label>Count char:</label>
+          <input type="text" id="count-char" placeholder="e.g. s" maxlength="1" style="width:40px;" oninput="reset()">
+        </span>
+      </div>
+      <button class="btn btn-ghost" onclick="stepBack()">◀ Step</button>
+      <button class="btn btn-ghost" onclick="stepForward()">Step ▶</button>
+      <button class="btn" onclick="runAuto()">▶ Auto</button>
+      <button class="btn btn-ghost" onclick="reset()">↺ Reset</button>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat"><div class="stat-val" id="stat-calls">0</div><div class="stat-lbl">Calls</div></div>
+    <div class="stat"><div class="stat-val" id="stat-depth">0</div><div class="stat-lbl">Max Depth</div></div>
+    <div class="stat"><div class="stat-val" id="stat-returns">0</div><div class="stat-lbl">Returns</div></div>
+    <div class="stat"><div class="stat-val" id="stat-result">—</div><div class="stat-lbl">Result</div></div>
+    <div class="stat" id="stat-word-wrap" style="display:none;"><div class="stat-val" id="stat-word" style="font-size:0.85rem;letter-spacing:0.08em;">—</div><div class="stat-lbl">Word</div></div>
+  </div>
+
+  <!-- Main Panels (50/50) -->
+  <div class="panels">
+    <!-- Left: Pseudocode -->
+    <div class="panel">
+      <div class="panel-header">Pseudocode</div>
+      <div class="panel-body">
+        <div class="pseudocode" id="pseudocode-display"></div>
+        <div id="result-display"></div>
+      </div>
+    </div>
+
+    <!-- Right: Call Stack + Tree -->
+    <div class="panel">
+      <div class="tab-strip">
+        <button class="tab active" onclick="switchTab('stack',event)">Call Stack</button>
+        <button class="tab" onclick="switchTab('tree',event)">Execution Tree</button>
+      </div>
+
+      <div id="tab-stack" class="tab-content active">
+        <div class="panel-body">
+          <div style="font-size:9px;color:var(--text-dim);margin-bottom:8px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;">↑ Top of Stack</div>
+          <div class="call-stack" id="call-stack"></div>
+        </div>
+      </div>
+
+      <div id="tab-tree" class="tab-content">
+        <div class="tree-container" id="tree-container">
+          <svg class="tree-svg" id="tree-svg" width="400" height="300"></svg>
+          <div class="zoom-controls">
+            <button class="zoom-btn" onclick="zoomIn()" title="Zoom In">+</button>
+            <button class="zoom-btn" onclick="zoomReset()" title="Reset Zoom" style="font-size:10px;">⌂</button>
+            <button class="zoom-btn" onclick="zoomOut()" title="Zoom Out">−</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Log -->
+  <div class="bottom-strip">
+    <div class="log-label">Log</div>
+    <div id="exec-log"><span style="color:var(--text-dim);font-style:italic;">Run an algorithm to see the execution log...</span></div>
+    <div class="speed-wrap">
+      <label style="font-size:9px;">Speed</label>
+      <input type="range" id="speed" min="100" max="2000" value="600" oninput="updateSpeed()">
+      <span id="speed-label" style="font-size:9px;color:var(--text-dim);min-width:36px;">600ms</span>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-text"><span>dcs</span> / <span>ipl</span> / <span>csdc102</span></div>
+</footer>
+
+<script>
+// ── DISABLE RIGHT CLICK ──
+document.addEventListener('contextmenu', e => e.preventDefault());
+
+// ── DROPDOWN ──
+function toggleMenu() {
+  const btn = document.getElementById('dropdown-btn');
+  const menu = document.getElementById('algo-menu');
+  btn.classList.toggle('open');
+  menu.classList.toggle('open');
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.algo-dropdown-wrap')) {
+    document.getElementById('dropdown-btn').classList.remove('open');
+    document.getElementById('algo-menu').classList.remove('open');
+  }
+});
+
+// ── ZOOM STATE ──
+let zoomLevel = 1;
+let panX = 0, panY = 0;
+let isPanning = false, panStartX = 0, panStartY = 0;
+
+function applyTreeTransform() {
+  const svg = document.getElementById('tree-svg');
+  svg.style.transform = `translate(${panX}px, ${panY}px) scale(${zoomLevel})`;
+}
+
+function zoomIn() { zoomLevel = Math.min(3, zoomLevel + 0.2); applyTreeTransform(); }
+function zoomOut() { zoomLevel = Math.max(0.3, zoomLevel - 0.2); applyTreeTransform(); }
+function zoomReset() { zoomLevel = 1; panX = 0; panY = 0; applyTreeTransform(); }
+
+// Mouse wheel zoom
+document.addEventListener('DOMContentLoaded', () => {
+  const container = document.getElementById('tree-container');
+  container.addEventListener('wheel', e => {
+    e.preventDefault();
+    const delta = e.deltaY < 0 ? 0.1 : -0.1;
+    zoomLevel = Math.min(3, Math.max(0.3, zoomLevel + delta));
+    applyTreeTransform();
+  }, { passive: false });
+
+  // Pan
+  container.addEventListener('mousedown', e => {
+    isPanning = true;
+    panStartX = e.clientX - panX;
+    panStartY = e.clientY - panY;
+    container.style.cursor = 'grabbing';
+  });
+  document.addEventListener('mousemove', e => {
+    if (!isPanning) return;
+    panX = e.clientX - panStartX;
+    panY = e.clientY - panStartY;
+    applyTreeTransform();
+  });
+  document.addEventListener('mouseup', () => {
+    isPanning = false;
+    document.getElementById('tree-container').style.cursor = 'grab';
+  });
+});
+
+// ── ALGORITHM DEFINITIONS ──
+const ALGOS = {
+  factorial: {
+    title: 'Factorial', desc: 'Multiply n by all positive integers less than it — the classic first recursion.',
+    inputLabel: 'n', defaultInput: 5, max: 10, difficulty: 'easy',
+    pseudocode: [
+      { text: '<span class="fn">FUNCTION</span> factorial(n):' },
+      { text: '  <span class="cm">// Base case: stop recursion</span>' },
+      { text: '  <span class="kw">IF</span> n <= <span class="num">1</span>:' },
+      { text: '    <span class="kw">RETURN</span> <span class="num">1</span>' },
+      { text: '  <span class="cm">// Recursive case</span>' },
+      { text: '  result = n * <span class="fn">factorial</span>(n - <span class="num">1</span>)' },
+      { text: '  <span class="kw">RETURN</span> result' },
+    ],
+    run: function(n) {
+      const steps = []; let idCount = 0;
+      const tree = { id:0, label:'', children:[], value:null, depth:0 };
+      function fact(n, nodeRef, depth) {
+        nodeRef.label = `fact(${n})`;
+        steps.push({ type:'call', fn:`factorial(${n})`, depth, pseudo:n<=1?2:5, nodeId:nodeRef.id, stackLabel:`factorial(${n})` });
+        if (n <= 1) { steps.push({ type:'return', fn:`factorial(${n})`, val:1, depth, pseudo:3, nodeId:nodeRef.id, stackLabel:`factorial(${n})` }); nodeRef.value = 1; return 1; }
+        const child = { id:++idCount, label:'', children:[], value:null, depth:depth+1 };
+        nodeRef.children.push(child);
+        const r = fact(n-1, child, depth+1);
+        const result = n * r; nodeRef.value = result;
+        steps.push({ type:'return', fn:`factorial(${n})`, val:result, depth, pseudo:6, nodeId:nodeRef.id, stackLabel:`factorial(${n})` });
+        return result;
+      }
+      fact(n, tree, 0); return { steps, tree };
+    }
+  },
+  fibonacci: {
+    title: 'Fibonacci', desc: 'Each number is the sum of the two before it — reveals exponential call growth.',
+    inputLabel: 'n', defaultInput: 5, max: 7, difficulty: 'easy',
+    pseudocode: [
+      { text: '<span class="fn">FUNCTION</span> fib(n):' },
+      { text: '  <span class="kw">IF</span> n <= <span class="num">1</span>:' },
+      { text: '    <span class="kw">RETURN</span> n' },
+      { text: '  left  = <span class="fn">fib</span>(n - <span class="num">1</span>)' },
+      { text: '  right = <span class="fn">fib</span>(n - <span class="num">2</span>)' },
+      { text: '  <span class="kw">RETURN</span> left + right' },
+    ],
+    run: function(n) {
+      const steps = []; let idCount = 0;
+      const tree = { id:0, label:'', children:[], value:null, depth:0 };
+      function fib(n, nodeRef, depth) {
+        nodeRef.label = `fib(${n})`;
+        steps.push({ type:'call', fn:`fib(${n})`, depth, pseudo:1, nodeId:nodeRef.id, stackLabel:`fib(${n})` });
+        if (n <= 1) { steps.push({ type:'return', fn:`fib(${n})`, val:n, depth, pseudo:2, nodeId:nodeRef.id, stackLabel:`fib(${n})` }); nodeRef.value = n; return n; }
+        const lChild = { id:++idCount, label:'', children:[], value:null, depth:depth+1 };
+        nodeRef.children.push(lChild);
+        const l = fib(n-1, lChild, depth+1);
+        steps.push({ type:'info', fn:`fib(${n})`, info:`left=${l}`, pseudo:3, nodeId:nodeRef.id });
+        const rChild = { id:++idCount, label:'', children:[], value:null, depth:depth+1 };
+        nodeRef.children.push(rChild);
+        const r = fib(n-2, rChild, depth+1);
+        const result = l+r; nodeRef.value = result;
+        steps.push({ type:'return', fn:`fib(${n})`, val:result, depth, pseudo:5, nodeId:nodeRef.id, stackLabel:`fib(${n})` });
+        return result;
+      }
+      fib(n, tree, 0); return { steps, tree };
+    }
+  },
+  power: {
+    title: 'Power (Fast Exponentiation)', desc: 'Compute x^n in O(log n) by halving the exponent each step.',
+    inputLabel: 'n (exponent)', defaultInput: 8, max: 16, difficulty: 'easy',
+    pseudocode: [
+      { text: '<span class="fn">FUNCTION</span> power(x, n):' },
+      { text: '  <span class="kw">IF</span> n == <span class="num">0</span>: <span class="kw">RETURN</span> <span class="num">1</span>' },
+      { text: '  half = <span class="fn">power</span>(x, n / <span class="num">2</span>)' },
+      { text: '  <span class="kw">IF</span> n is even:' },
+      { text: '    <span class="kw">RETURN</span> half * half' },
+      { text: '  <span class="kw">ELSE</span>:' },
+      { text: '    <span class="kw">RETURN</span> x * half * half' },
+    ],
+    run: function(n) {
+      const steps = []; const x = 2; let idCount = 0;
+      const tree = { id:0, label:'', children:[], value:null, depth:0 };
+      function pw(n, nodeRef, depth) {
+        nodeRef.label = `pow(${x},${n})`;
+        steps.push({ type:'call', fn:`power(${x},${n})`, depth, pseudo:1, nodeId:nodeRef.id, stackLabel:`power(2,${n})` });
+        if (n===0) { nodeRef.value=1; steps.push({ type:'return', fn:`power(${x},${n})`, val:1, depth, pseudo:1, nodeId:nodeRef.id, stackLabel:`power(2,${n})` }); return 1; }
+        const child = { id:++idCount, label:'', children:[], value:null, depth:depth+1 };
+        nodeRef.children.push(child);
+        const half = pw(Math.floor(n/2), child, depth+1);
+        const result = n%2===0 ? half*half : x*half*half; nodeRef.value = result;
+        steps.push({ type:'return', fn:`power(${x},${n})`, val:result, depth, pseudo:n%2===0?4:6, nodeId:nodeRef.id, stackLabel:`power(2,${n})` });
+        return result;
+      }
+      pw(n, tree, 0); return { steps, tree };
+    }
+  },
+  gcd: {
+    title: 'GCD — Euclidean Algorithm', desc: 'Find the Greatest Common Divisor by repeatedly replacing (a, b) with (b, a mod b).',
+    inputLabel: 'a (first number)', defaultInput: 48, max: 999, difficulty: 'easy',
+    pseudocode: [
+      { text: '<span class="fn">FUNCTION</span> gcd(a, b):' },
+      { text: '  <span class="cm">// Base case: b is 0, a is the GCD</span>' },
+      { text: '  <span class="kw">IF</span> b == <span class="num">0</span>:' },
+      { text: '    <span class="kw">RETURN</span> a' },
+      { text: '  <span class="cm">// Recursive case: gcd(b, a mod b)</span>' },
+      { text: '  <span class="kw">RETURN</span> <span class="fn">gcd</span>(b, a <span class="kw">mod</span> b)' },
+    ],
+    run: function(a) {
+      const b = Math.floor(a * 0.625) || 30;
+      const steps = []; let idCount = 0;
+      const tree = { id:0, label:'', children:[], value:null, depth:0 };
+      function gcd(a, b, nodeRef, depth) {
+        nodeRef.label = `gcd(${a},${b})`;
+        steps.push({ type:'call', fn:`gcd(${a}, ${b})`, depth, pseudo:0, nodeId:nodeRef.id, stackLabel:`gcd(a=${a}, b=${b})` });
+        if (b===0) { nodeRef.value=a; steps.push({ type:'return', fn:`gcd(${a}, ${b})`, val:a, depth, pseudo:3, nodeId:nodeRef.id, stackLabel:`gcd(a=${a}, b=${b})` }); return a; }
+        const rem = a%b;
+        steps.push({ type:'info', fn:`gcd(${a},${b})`, info:`${a} mod ${b} = ${rem}`, pseudo:5, nodeId:nodeRef.id });
+        const child = { id:++idCount, label:'', children:[], value:null, depth:depth+1 };
+        nodeRef.children.push(child);
+        const result = gcd(b, rem, child, depth+1); nodeRef.value = result;
+        steps.push({ type:'return', fn:`gcd(${a}, ${b})`, val:result, depth, pseudo:5, nodeId:nodeRef.id, stackLabel:`gcd(a=${a}, b=${b})` });
+        return result;
+      }
+      const result = gcd(a, b, tree, 0); return { steps, tree, extra:`gcd(${a}, ${b}) = ${result}` };
+    }
+  },
+  sum_digits: {
+    title: 'Sum of Digits', desc: 'Recursively extract each digit and add it up — simple but elegant.',
+    inputLabel: 'Number', defaultInput: 9345, max: 99999, difficulty: 'easy',
+    pseudocode: [
+      { text: '<span class="fn">FUNCTION</span> sumDigits(n):' },
+      { text: '  <span class="kw">IF</span> n < <span class="num">10</span>:' },
+      { text: '    <span class="kw">RETURN</span> n  <span class="cm">// Single digit = base case</span>' },
+      { text: '  lastDigit = n <span class="kw">mod</span> <span class="num">10</span>' },
+      { text: '  rest = n / <span class="num">10</span>  <span class="cm">// Integer division</span>' },
+      { text: '  <span class="kw">RETURN</span> lastDigit + <span class="fn">sumDigits</span>(rest)' },
+    ],
+    run: function(n) {
+      const steps = []; let idCount = 0;
+      const tree = { id:0, label:'', children:[], value:null, depth:0 };
+      function sd(n, nodeRef, depth) {
+        nodeRef.label = `sd(${n})`;
+        steps.push({ type:'call', fn:`sumDigits(${n})`, depth, pseudo:0, nodeId:nodeRef.id, stackLabel:`sumDigits(${n})` });
+        if (n<10) { nodeRef.value=n; steps.push({ type:'return', fn:`sumDigits(${n})`, val:n, depth, pseudo:2, nodeId:nodeRef.id, stackLabel:`sumDigits(${n})` }); return n; }
+        const last=n%10, rest=Math.floor(n/10);
+        steps.push({ type:'info', fn:`sumDigits(${n})`, info:`last=${last}, rest=${rest}`, pseudo:3, nodeId:nodeRef.id });
+        const child = { id:++idCount, label:'', children:[], value:null, depth:depth+1 };
+        nodeRef.children.push(child);
+        const sub = sd(rest, child, depth+1);
+        const result = last+sub; nodeRef.value=result;
+        steps.push({ type:'return', fn:`sumDigits(${n})`, val:result, depth, pseudo:5, nodeId:nodeRef.id, stackLabel:`sumDigits(${n})` });
+        return result;
+      }
+      const result = sd(n, tree, 0); return { steps, tree, extra:`sumDigits(${n}) = ${result}` };
+    }
+  },
+  palindrome: {
+    title: 'Palindrome Check', desc: 'Compare outer characters and recurse inward — base case is a string of length ≤ 1.',
+    inputLabel: 'Word index (0-5)', defaultInput: 0, max: 5, difficulty: 'easy',
+    pseudocode: [
+      { text: '<span class="fn">FUNCTION</span> isPalindrome(s, lo, hi):' },
+      { text: '  <span class="kw">IF</span> lo >= hi:' },
+      { text: '    <span class="kw">RETURN</span> <span class="kw">true</span>  <span class="cm">// Base: middle reached</span>' },
+      { text: '  <span class="kw">IF</span> s[lo] != s[hi]:' },
+      { text: '    <span class="kw">RETURN</span> <span class="kw">false</span>  <span class="cm">// Mismatch found</span>' },
+      { text: '  <span class="cm">// Outer chars match — recurse inward</span>' },
+      { text: '  <span class="kw">RETURN</span> <span class="fn">isPalindrome</span>(s, lo+<span class="num">1</span>, hi-<span class="num">1</span>)' },
+    ],
+    run: function(idx) {
+      // Check for custom word
+      const customEl = document.getElementById('string-custom');
+      let s;
+      if (customEl && customEl.value.trim().length > 0) {
+        s = customEl.value.trim();
+        if (s.length === 0) s = 'racecar';
+      } else {
+        const words = ['racecar','level','hello','madam','world','noon'];
+        s = words[Math.min(idx, words.length-1)];
+      }
+      const steps = []; let idCount = 0;
+      const tree = { id:0, label:'', children:[], value:null, depth:0 };
+      function isPalin(lo, hi, nodeRef, depth) {
+        nodeRef.label = `"${s.slice(lo,hi+1)}"`;
+        steps.push({ type:'call', fn:`check("${s.slice(lo,hi+1)}")`, depth, pseudo:0, nodeId:nodeRef.id, stackLabel:`isPalin(lo=${lo}, hi=${hi})` });
+        if (lo>=hi) { nodeRef.value=true; steps.push({ type:'return', fn:`check(…)`, val:'true', depth, pseudo:2, nodeId:nodeRef.id, stackLabel:`isPalin(lo=${lo}, hi=${hi})` }); return true; }
+        steps.push({ type:'info', fn:`check(…)`, info:`compare '${s[lo]}' vs '${s[hi]}'`, pseudo:3, nodeId:nodeRef.id });
+        if (s[lo]!==s[hi]) { nodeRef.value=false; steps.push({ type:'return', fn:`check(…)`, val:'false ✗', depth, pseudo:4, nodeId:nodeRef.id, stackLabel:`isPalin(lo=${lo}, hi=${hi})` }); return false; }
+        const child = { id:++idCount, label:'', children:[], value:null, depth:depth+1 };
+        nodeRef.children.push(child);
+        const result = isPalin(lo+1, hi-1, child, depth+1); nodeRef.value=result;
+        steps.push({ type:'return', fn:`check(…)`, val:result?'true ✓':'false ✗', depth, pseudo:6, nodeId:nodeRef.id, stackLabel:`isPalin(lo=${lo}, hi=${hi})` });
+        return result;
+      }
+      const result = isPalin(0, s.length-1, tree, 0);
+      return { steps, tree, extra:`"${s}" → ${result ? '✓ Palindrome' : '✗ Not a palindrome'}` };
+    }
+  },
+  reverse_string: {
+    title: 'Reverse String', desc: 'Take the last character, then prepend the reverse of the rest — character by character.',
+    inputLabel: 'Word index (0-4)', defaultInput: 0, max: 4, difficulty: 'easy',
+    pseudocode: [
+      { text: '<span class="fn">FUNCTION</span> reverse(s):' },
+      { text: '  <span class="kw">IF</span> s.length <= <span class="num">1</span>:' },
+      { text: '    <span class="kw">RETURN</span> s  <span class="cm">// Base case</span>' },
+      { text: '  first = s[<span class="num">0</span>]' },
+      { text: '  rest  = s[<span class="num">1</span>..]' },
+      { text: '  <span class="kw">RETURN</span> <span class="fn">reverse</span>(rest) + first' },
+    ],
+    run: function(idx) {
+      const customEl = document.getElementById('string-custom');
+      let s;
+      if (customEl && customEl.value.trim().length > 0) {
+        s = customEl.value.trim();
+        if (s.length === 0) s = 'hello';
+      } else {
+        const words = ['hello','world','code','tree','algo'];
+        s = words[Math.min(idx, words.length-1)];
+      }
+      const steps = []; let idCount = 0;
+      const tree = { id:0, label:'', children:[], value:null, depth:0 };
+      function rev(str, nodeRef, depth) {
+        nodeRef.label = `"${str}"`;
+        steps.push({ type:'call', fn:`reverse("${str}")`, depth, pseudo:0, nodeId:nodeRef.id, stackLabel:`reverse("${str}")` });
+        if (str.length<=1) { nodeRef.value=str; steps.push({ type:'return', fn:`reverse("${str}")`, val:`"${str}"`, depth, pseudo:2, nodeId:nodeRef.id, stackLabel:`reverse("${str}")` }); return str; }
+        steps.push({ type:'info', fn:`reverse("${str}")`, info:`first='${str[0]}', rest="${str.slice(1)}"`, pseudo:3, nodeId:nodeRef.id });
+        const child = { id:++idCount, label:'', children:[], value:null, depth:depth+1 };
+        nodeRef.children.push(child);
+        const reversed = rev(str.slice(1), child, depth+1);
+        const result = reversed+str[0]; nodeRef.value=result;
+        steps.push({ type:'return', fn:`reverse("${str}")`, val:`"${result}"`, depth, pseudo:5, nodeId:nodeRef.id, stackLabel:`reverse("${str}")` });
+        return result;
+      }
+      const result = rev(s, tree, 0); return { steps, tree, extra:`reverse("${s}") = "${result}"` };
+    }
+  },
+  count_occurrences: {
+    title: 'Count Occurrences', desc: 'Count how many times a character appears in a string using pure recursion.',
+    inputLabel: 'String index (0-3)', defaultInput: 0, max: 3, difficulty: 'easy',
+    pseudocode: [
+      { text: '<span class="fn">FUNCTION</span> count(s, ch, i):' },
+      { text: '  <span class="kw">IF</span> i == s.length:' },
+      { text: '    <span class="kw">RETURN</span> <span class="num">0</span>  <span class="cm">// End of string</span>' },
+      { text: '  match = (s[i] == ch) ? <span class="num">1</span> : <span class="num">0</span>' },
+      { text: '  <span class="kw">RETURN</span> match + <span class="fn">count</span>(s, ch, i+<span class="num">1</span>)' },
+    ],
+    run: function(idx) {
+      const customEl = document.getElementById('string-custom');
+      const charEl = document.getElementById('count-char');
+      let s, ch;
+      if (customEl && customEl.value.trim().length > 0) {
+        s = customEl.value.trim();
+        ch = (charEl && charEl.value.trim().length > 0) ? charEl.value.trim()[0] : s[0];
+      } else {
+        const pairs = [['mississippi','s'],['banana','a'],['programming','g'],['recursion','r']];
+        [s, ch] = pairs[Math.min(idx, pairs.length-1)];
+      }
+      const steps = []; let idCount = 0;
+      const tree = { id:0, label:'', children:[], value:null, depth:0 };
+      function countOcc(i, nodeRef, depth) {
+        nodeRef.label = i<s.length?`i=${i}:'${s[i]}'`:'end';
+        steps.push({ type:'call', fn:`count(i=${i})`, depth, pseudo:0, nodeId:nodeRef.id, stackLabel:`count(s, '${ch}', i=${i})` });
+        if (i===s.length) { nodeRef.value=0; steps.push({ type:'return', fn:`count(i=${i})`, val:0, depth, pseudo:2, nodeId:nodeRef.id, stackLabel:`count(i=${i})` }); return 0; }
+        const match=s[i]===ch?1:0;
+        steps.push({ type:'info', fn:`count(i=${i})`, info:`s[${i}]='${s[i]}' ${match?'== ✓':'!= ✗'} '${ch}'`, pseudo:3, nodeId:nodeRef.id });
+        const child = { id:++idCount, label:'', children:[], value:null, depth:depth+1 };
+        nodeRef.children.push(child);
+        const sub = countOcc(i+1, child, depth+1);
+        const result = match+sub; nodeRef.value=result;
+        steps.push({ type:'return', fn:`count(i=${i})`, val:result, depth, pseudo:4, nodeId:nodeRef.id, stackLabel:`count(i=${i})` });
+        return result;
+      }
+      const result = countOcc(0, tree, 0); return { steps, tree, extra:`count('${ch}' in "${s}") = ${result}` };
+    }
+  },
+  binary_search: {
+    title: 'Binary Search', desc: 'Find a target by halving the search space each call — O(log n).',
+    inputLabel: 'Array size', defaultInput: 7, max: 15, difficulty: 'medium',
+    pseudocode: [
+      { text: '<span class="fn">FUNCTION</span> bsearch(arr, lo, hi, target):' },
+      { text: '  <span class="kw">IF</span> lo > hi: <span class="kw">RETURN</span> -<span class="num">1</span>  <span class="cm">// Not found</span>' },
+      { text: '  mid = (lo + hi) / <span class="num">2</span>' },
+      { text: '  <span class="kw">IF</span> arr[mid] == target: <span class="kw">RETURN</span> mid' },
+      { text: '  <span class="kw">IF</span> arr[mid] < target:' },
+      { text: '    <span class="kw">RETURN</span> <span class="fn">bsearch</span>(arr, mid+<span class="num">1</span>, hi, target)' },
+      { text: '  <span class="kw">RETURN</span> <span class="fn">bsearch</span>(arr, lo, mid-<span class="num">1</span>, target)' },
+    ],
+    run: function(n) {
+      const steps = [];
+      const arr = Array.from({length:n}, (_,i)=>i*2+1);
+      const target = arr[Math.floor(Math.random()*n)];
+      let idCount = 0;
+      const tree = { id:0, label:'', children:[], value:null, depth:0 };
+      function bs(lo, hi, nodeRef, depth) {
+        nodeRef.label = `[${lo}..${hi}]`;
+        steps.push({ type:'call', fn:`bsearch(${lo},${hi})`, depth, pseudo:1, nodeId:nodeRef.id, stackLabel:`bsearch(lo=${lo},hi=${hi})`, extra:`target=${target}` });
+        if (lo>hi) { nodeRef.value=-1; steps.push({ type:'return', fn:`bsearch(${lo},${hi})`, val:-1, depth, pseudo:1, nodeId:nodeRef.id, stackLabel:`bsearch(lo=${lo},hi=${hi})` }); return -1; }
+        const mid = Math.floor((lo+hi)/2);
+        steps.push({ type:'info', fn:`bsearch(${lo},${hi})`, info:`mid=${mid}, arr[mid]=${arr[mid]}`, pseudo:2, nodeId:nodeRef.id });
+        if (arr[mid]===target) { nodeRef.value=mid; steps.push({ type:'return', fn:`bsearch(${lo},${hi})`, val:mid, depth, pseudo:3, nodeId:nodeRef.id, stackLabel:`bsearch(lo=${lo},hi=${hi})` }); return mid; }
+        let result;
+        if (arr[mid]<target) { const child = { id:++idCount, label:'', children:[], value:null, depth:depth+1 }; nodeRef.children.push(child); result = bs(mid+1, hi, child, depth+1); }
+        else { const child = { id:++idCount, label:'', children:[], value:null, depth:depth+1 }; nodeRef.children.push(child); result = bs(lo, mid-1, child, depth+1); }
+        nodeRef.value = result;
+        steps.push({ type:'return', fn:`bsearch(${lo},${hi})`, val:result, depth, pseudo:5, nodeId:nodeRef.id, stackLabel:`bsearch(lo=${lo},hi=${hi})` });
+        return result;
+      }
+      bs(0, n-1, tree, 0); return { steps, tree, extra:`Array: [${arr.join(', ')}]  Target: ${target}` };
+    }
+  },
+  merge_sort: {
+    title: 'Merge Sort', desc: 'Divide array in half recursively, then merge sorted halves back.',
+    inputLabel: 'Array size', defaultInput: 6, max: 8, difficulty: 'medium',
+    pseudocode: [
+      { text: '<span class="fn">FUNCTION</span> mergeSort(arr):' },
+      { text: '  <span class="kw">IF</span> len(arr) <= <span class="num">1</span>: <span class="kw">RETURN</span> arr' },
+      { text: '  mid = len(arr) / <span class="num">2</span>' },
+      { text: '  left  = <span class="fn">mergeSort</span>(arr[..mid])' },
+      { text: '  right = <span class="fn">mergeSort</span>(arr[mid..])' },
+      { text: '  <span class="kw">RETURN</span> <span class="fn">merge</span>(left, right)' },
+    ],
+    run: function(n) {
+      const steps = [];
+      const arr = Array.from({length:n}, ()=>Math.floor(Math.random()*50)+1);
+      let idCount = 0;
+      const tree = { id:0, label:'', children:[], value:null, depth:0 };
+      function ms(a, nodeRef, depth) {
+        nodeRef.label = `[${a.join(',')}]`;
+        steps.push({ type:'call', fn:`sort([${a.join(',')}])`, depth, pseudo:0, nodeId:nodeRef.id, stackLabel:`mergeSort([${a}])` });
+        if (a.length<=1) { nodeRef.value=a; steps.push({ type:'return', fn:`sort([${a}])`, val:JSON.stringify(a), depth, pseudo:1, nodeId:nodeRef.id, stackLabel:`mergeSort([${a}])` }); return a; }
+        const mid = Math.floor(a.length/2);
+        const lChild = { id:++idCount, label:'', children:[], value:null, depth:depth+1 }; nodeRef.children.push(lChild);
+        const left = ms(a.slice(0,mid), lChild, depth+1);
+        const rChild = { id:++idCount, label:'', children:[], value:null, depth:depth+1 }; nodeRef.children.push(rChild);
+        const right = ms(a.slice(mid), rChild, depth+1);
+        const merged = []; let i=0,j=0;
+        while(i<left.length&&j<right.length) merged.push(left[i]<right[j]?left[i++]:right[j++]);
+        while(i<left.length) merged.push(left[i++]);
+        while(j<right.length) merged.push(right[j++]);
+        nodeRef.value = merged;
+        steps.push({ type:'return', fn:`sort([${a}])`, val:JSON.stringify(merged), depth, pseudo:5, nodeId:nodeRef.id, stackLabel:`mergeSort([${a}])` });
+        return merged;
+      }
+      const result = ms(arr, tree, 0); return { steps, tree, extra:`Input: [${arr.join(', ')}]  →  Sorted: [${result.join(', ')}]` };
+    }
+  },
+  tower_hanoi: {
+    title: 'Tower of Hanoi', desc: 'Move n disks from A to C using B as auxiliary — O(2ⁿ) moves.',
+    inputLabel: 'Disks', defaultInput: 3, max: 5, difficulty: 'medium',
+    pseudocode: [
+      { text: '<span class="fn">FUNCTION</span> hanoi(n, from, to, aux):' },
+      { text: '  <span class="kw">IF</span> n == <span class="num">0</span>: <span class="kw">RETURN</span>' },
+      { text: '  <span class="fn">hanoi</span>(n-<span class="num">1</span>, from, aux, to)  <span class="cm">// Move n-1 to aux</span>' },
+      { text: '  MOVE disk n: from → to' },
+      { text: '  <span class="fn">hanoi</span>(n-<span class="num">1</span>, aux, to, from)  <span class="cm">// Move n-1 to dest</span>' },
+    ],
+    run: function(n) {
+      const steps = []; let idCount = 0;
+      const tree = { id:0, label:'', children:[], value:null, depth:0 };
+      function hanoi(disks, from, to, aux, nodeRef, depth) {
+        nodeRef.label = `h(${disks},${from}→${to})`;
+        steps.push({ type:'call', fn:`hanoi(${disks},${from}→${to})`, depth, pseudo:0, nodeId:nodeRef.id, stackLabel:`hanoi(n=${disks}, ${from}→${to})` });
+        if (disks===0) { steps.push({ type:'return', fn:`hanoi(${disks},${from}→${to})`, val:'done', depth, pseudo:1, nodeId:nodeRef.id, stackLabel:`hanoi(n=${disks}, ${from}→${to})` }); nodeRef.value='done'; return; }
+        const l = { id:++idCount, label:'', children:[], value:null, depth:depth+1 }; nodeRef.children.push(l);
+        hanoi(disks-1, from, aux, to, l, depth+1);
+        steps.push({ type:'info', fn:`hanoi(${disks})`, info:`Move disk ${disks}: ${from} → ${to}`, pseudo:3, nodeId:nodeRef.id });
+        const r = { id:++idCount, label:'', children:[], value:null, depth:depth+1 }; nodeRef.children.push(r);
+        hanoi(disks-1, aux, to, from, r, depth+1);
+        nodeRef.value = 'done';
+        steps.push({ type:'return', fn:`hanoi(${disks},${from}→${to})`, val:'done', depth, pseudo:4, nodeId:nodeRef.id, stackLabel:`hanoi(n=${disks}, ${from}→${to})` });
+      }
+      hanoi(n, 'A', 'C', 'B', tree, 0); return { steps, tree };
+    }
+  },
+  flatten: {
+    title: 'Flatten Nested Array', desc: 'Recursively unwrap nested arrays into a single flat array.',
+    inputLabel: 'Depth', defaultInput: 3, max: 4, difficulty: 'medium',
+    pseudocode: [
+      { text: '<span class="fn">FUNCTION</span> flatten(arr):' },
+      { text: '  result = []' },
+      { text: '  <span class="kw">FOR EACH</span> item <span class="kw">IN</span> arr:' },
+      { text: '    <span class="kw">IF</span> item is array:' },
+      { text: '      result += <span class="fn">flatten</span>(item)' },
+      { text: '    <span class="kw">ELSE</span>:' },
+      { text: '      result.push(item)' },
+      { text: '  <span class="kw">RETURN</span> result' },
+    ],
+    run: function(depth) {
+      const steps = []; let idCount = 0;
+      const tree = { id:0, label:'', children:[], value:null, depth:0 };
+      function makeNested(d) { if(d===0) return Math.floor(Math.random()*9)+1; return [makeNested(d-1),makeNested(d-1)]; }
+      const input = [makeNested(depth-1),makeNested(depth-1),makeNested(depth-1)];
+      function flatten(arr, nodeRef, d) {
+        const label = JSON.stringify(arr).replace(/"/g,'');
+        nodeRef.label = label.length>12?label.slice(0,12)+'…':label;
+        steps.push({ type:'call', fn:`flatten(${nodeRef.label})`, depth:d, pseudo:0, nodeId:nodeRef.id, stackLabel:`flatten(${nodeRef.label})` });
+        const result = [];
+        for (const item of arr) {
+          if (Array.isArray(item)) { const child = { id:++idCount, label:'', children:[], value:null, depth:d+1 }; nodeRef.children.push(child); result.push(...flatten(item, child, d+1)); }
+          else { result.push(item); steps.push({ type:'info', fn:'push', info:`push ${item}`, pseudo:6, nodeId:nodeRef.id }); }
+        }
+        nodeRef.value = result;
+        steps.push({ type:'return', fn:`flatten(…)`, val:`[${result}]`, depth:d, pseudo:7, nodeId:nodeRef.id, stackLabel:`flatten(${nodeRef.label})` });
+        return result;
+      }
+      const result = flatten(input, tree, 0); return { steps, tree, extra:`Input: ${JSON.stringify(input)}  →  Flat: [${result}]` };
+    }
+  },
+  tree_depth: {
+    title: 'Tree Max Depth', desc: 'Find the maximum depth of a binary tree by recursing left and right subtrees.',
+    inputLabel: 'Tree levels', defaultInput: 3, max: 4, difficulty: 'medium',
+    pseudocode: [
+      { text: '<span class="fn">FUNCTION</span> maxDepth(node):' },
+      { text: '  <span class="kw">IF</span> node == <span class="kw">null</span>:' },
+      { text: '    <span class="kw">RETURN</span> <span class="num">0</span>  <span class="cm">// Empty subtree</span>' },
+      { text: '  leftH  = <span class="fn">maxDepth</span>(node.left)' },
+      { text: '  rightH = <span class="fn">maxDepth</span>(node.right)' },
+      { text: '  <span class="kw">RETURN</span> <span class="num">1</span> + max(leftH, rightH)' },
+    ],
+    run: function(levels) {
+      const steps = []; let idCount = 0;
+      function buildTree(depth) { if(depth===0) return null; return { val:Math.floor(Math.random()*50)+1, left:Math.random()>0.25?buildTree(depth-1):null, right:Math.random()>0.25?buildTree(depth-1):null }; }
+      const inputTree = buildTree(levels);
+      const vizTree = { id:0, label:'', children:[], value:null, depth:0 };
+      function maxDepth(node, nodeRef, depth) {
+        if (!node) { nodeRef.label='null'; steps.push({ type:'call', fn:`maxDepth(null)`, depth, pseudo:1, nodeId:nodeRef.id, stackLabel:`maxDepth(null)` }); nodeRef.value=0; steps.push({ type:'return', fn:`maxDepth(null)`, val:0, depth, pseudo:2, nodeId:nodeRef.id, stackLabel:`maxDepth(null)` }); return 0; }
+        nodeRef.label = `n(${node.val})`;
+        steps.push({ type:'call', fn:`maxDepth(${node.val})`, depth, pseudo:0, nodeId:nodeRef.id, stackLabel:`maxDepth(node=${node.val})` });
+        const lChild = { id:++idCount, label:'', children:[], value:null, depth:depth+1 }; nodeRef.children.push(lChild);
+        const lh = maxDepth(node.left, lChild, depth+1);
+        const rChild = { id:++idCount, label:'', children:[], value:null, depth:depth+1 }; nodeRef.children.push(rChild);
+        const rh = maxDepth(node.right, rChild, depth+1);
+        const result = 1+Math.max(lh,rh); nodeRef.value=result;
+        steps.push({ type:'return', fn:`maxDepth(${node.val})`, val:result, depth, pseudo:5, nodeId:nodeRef.id, stackLabel:`maxDepth(node=${node.val})` });
+        return result;
+      }
+      const result = maxDepth(inputTree, vizTree, 0); return { steps, tree:vizTree, extra:`Max depth of tree = ${result}` };
+    }
+  },
+  count_nodes: {
+    title: 'Count Tree Nodes', desc: 'Recursively count all nodes in a binary tree — left count + right count + 1 (self).',
+    inputLabel: 'Tree levels', defaultInput: 3, max: 4, difficulty: 'medium',
+    pseudocode: [
+      { text: '<span class="fn">FUNCTION</span> countNodes(node):' },
+      { text: '  <span class="kw">IF</span> node == <span class="kw">null</span>:' },
+      { text: '    <span class="kw">RETURN</span> <span class="num">0</span>  <span class="cm">// Empty subtree</span>' },
+      { text: '  left  = <span class="fn">countNodes</span>(node.left)' },
+      { text: '  right = <span class="fn">countNodes</span>(node.right)' },
+      { text: '  <span class="kw">RETURN</span> left + right + <span class="num">1</span>  <span class="cm">// +1 for self</span>' },
+    ],
+    run: function(levels) {
+      const steps = []; let idCount = 0;
+      function buildTree(depth) { if(depth===0) return null; return { val:Math.floor(Math.random()*50)+1, left:Math.random()>0.3?buildTree(depth-1):null, right:Math.random()>0.3?buildTree(depth-1):null }; }
+      const inputTree = buildTree(levels);
+      const vizTree = { id:0, label:'', children:[], value:null, depth:0 };
+      function cnt(node, nodeRef, depth) {
+        if (!node) { nodeRef.label='null'; steps.push({ type:'call', fn:`count(null)`, depth, pseudo:1, nodeId:nodeRef.id, stackLabel:`countNodes(null)` }); nodeRef.value=0; steps.push({ type:'return', fn:`count(null)`, val:0, depth, pseudo:2, nodeId:nodeRef.id, stackLabel:`countNodes(null)` }); return 0; }
+        nodeRef.label = `n(${node.val})`;
+        steps.push({ type:'call', fn:`count(${node.val})`, depth, pseudo:0, nodeId:nodeRef.id, stackLabel:`countNodes(node=${node.val})` });
+        const lc = { id:++idCount, label:'', children:[], value:null, depth:depth+1 }; nodeRef.children.push(lc);
+        const l = cnt(node.left, lc, depth+1);
+        const rc = { id:++idCount, label:'', children:[], value:null, depth:depth+1 }; nodeRef.children.push(rc);
+        const r = cnt(node.right, rc, depth+1);
+        const result = l+r+1; nodeRef.value=result;
+        steps.push({ type:'return', fn:`count(${node.val})`, val:result, depth, pseudo:5, nodeId:nodeRef.id, stackLabel:`countNodes(node=${node.val})` });
+        return result;
+      }
+      const result = cnt(inputTree, vizTree, 0); return { steps, tree:vizTree, extra:`Total nodes in tree = ${result}` };
+    }
+  },
+  permutations: {
+    title: 'Permutations', desc: 'Generate all orderings of a set via backtracking — n! possibilities.',
+    inputLabel: 'n (items)', defaultInput: 3, max: 4, difficulty: 'hard',
+    pseudocode: [
+      { text: '<span class="fn">FUNCTION</span> permute(arr, current=[]):' },
+      { text: '  <span class="kw">IF</span> arr is empty:' },
+      { text: '    output current  <span class="cm">// Base case: full permutation</span>' },
+      { text: '    <span class="kw">RETURN</span>' },
+      { text: '  <span class="kw">FOR EACH</span> i <span class="kw">IN</span> arr:' },
+      { text: '    <span class="fn">permute</span>(arr without i, current + [i])' },
+      { text: '    <span class="cm">// Backtrack: try next element</span>' },
+    ],
+    run: function(n) {
+      const steps = [];
+      const items = Array.from({length:n}, (_,i)=>String.fromCharCode(65+i));
+      let idCount = 0;
+      const tree = { id:0, label:'', children:[], value:null, depth:0 };
+      const results = [];
+      function permute(remaining, current, nodeRef, depth) {
+        nodeRef.label = current.length?`[${current}]`:'start';
+        steps.push({ type:'call', fn:`permute([${remaining}],[${current}])`, depth, pseudo:0, nodeId:nodeRef.id, stackLabel:`permute(rem=[${remaining}])` });
+        if (remaining.length===0) { results.push([...current]); nodeRef.value=`[${current}]`; steps.push({ type:'return', fn:`permute(…)`, val:`[${current}]`, depth, pseudo:2, nodeId:nodeRef.id, stackLabel:`permute(done)` }); return; }
+        for (let i=0;i<remaining.length;i++) {
+          const child = { id:++idCount, label:'', children:[], value:null, depth:depth+1 }; nodeRef.children.push(child);
+          const next=[...remaining]; const chosen=next.splice(i,1)[0];
+          permute(next, [...current,chosen], child, depth+1);
+        }
+        steps.push({ type:'return', fn:`permute(…)`, val:'backtrack', depth, pseudo:6, nodeId:nodeRef.id, stackLabel:`permute(rem=[${remaining}])` });
+      }
+      permute(items, [], tree, 0); return { steps, tree, extra:`${results.length} permutations: ${results.map(r=>r.join('')).join(', ')}` };
+    }
+  },
+  subsets: {
+    title: 'Subsets (Power Set)', desc: 'Generate all 2ⁿ subsets of a set — include or exclude each element recursively.',
+    inputLabel: 'n (set size)', defaultInput: 3, max: 4, difficulty: 'hard',
+    pseudocode: [
+      { text: '<span class="fn">FUNCTION</span> subsets(arr, i, current=[]):' },
+      { text: '  <span class="kw">IF</span> i == arr.length:' },
+      { text: '    output current  <span class="cm">// Found a complete subset</span>' },
+      { text: '    <span class="kw">RETURN</span>' },
+      { text: '  <span class="cm">// Choice 1: EXCLUDE arr[i]</span>' },
+      { text: '  <span class="fn">subsets</span>(arr, i+<span class="num">1</span>, current)' },
+      { text: '  <span class="cm">// Choice 2: INCLUDE arr[i]</span>' },
+      { text: '  <span class="fn">subsets</span>(arr, i+<span class="num">1</span>, current + [arr[i]])' },
+    ],
+    run: function(n) {
+      const arr = Array.from({length:n}, (_,i)=>String.fromCharCode(65+i));
+      const steps = []; let idCount = 0;
+      const tree = { id:0, label:'', children:[], value:null, depth:0 };
+      const results = [];
+      function subsets(i, current, nodeRef, depth) {
+        nodeRef.label = `i=${i} [${current}]`;
+        steps.push({ type:'call', fn:`sub(i=${i},[${current}])`, depth, pseudo:0, nodeId:nodeRef.id, stackLabel:`subsets(i=${i}, cur=[${current}])` });
+        if (i===arr.length) { results.push([...current]); nodeRef.value=`{${current}}`; steps.push({ type:'return', fn:`sub(done)`, val:`{${current.join(',')||'∅'}}`, depth, pseudo:2, nodeId:nodeRef.id, stackLabel:`subsets(done)` }); return; }
+        const excl = { id:++idCount, label:'', children:[], value:null, depth:depth+1 }; nodeRef.children.push(excl);
+        subsets(i+1, current, excl, depth+1);
+        const incl = { id:++idCount, label:'', children:[], value:null, depth:depth+1 }; nodeRef.children.push(incl);
+        subsets(i+1, [...current,arr[i]], incl, depth+1);
+        steps.push({ type:'return', fn:`sub(i=${i})`, val:'done', depth, pseudo:7, nodeId:nodeRef.id, stackLabel:`subsets(i=${i})` });
+      }
+      subsets(0, [], tree, 0); return { steps, tree, extra:`${results.length} subsets: ${results.map(s=>s.length?'{'+s.join(',')+'}':`∅`).join('  ')}` };
+    }
+  },
+  coin_change: {
+    title: 'Coin Change (Memoized)', desc: 'Find the minimum number of coins to make amount N — demonstrates memoization stopping redundant recursion.',
+    inputLabel: 'Amount', defaultInput: 7, max: 12, difficulty: 'hard',
+    pseudocode: [
+      { text: '<span class="fn">FUNCTION</span> minCoins(amount, coins, memo={}):' },
+      { text: '  <span class="kw">IF</span> amount == <span class="num">0</span>: <span class="kw">RETURN</span> <span class="num">0</span>' },
+      { text: '  <span class="kw">IF</span> amount < <span class="num">0</span>: <span class="kw">RETURN</span> ∞' },
+      { text: '  <span class="kw">IF</span> amount <span class="kw">in</span> memo: <span class="kw">RETURN</span> memo[amount]' },
+      { text: '  best = ∞' },
+      { text: '  <span class="kw">FOR EACH</span> coin <span class="kw">IN</span> coins:' },
+      { text: '    sub = <span class="fn">minCoins</span>(amount - coin, coins, memo)' },
+      { text: '    best = min(best, sub + <span class="num">1</span>)' },
+      { text: '  memo[amount] = best' },
+      { text: '  <span class="kw">RETURN</span> best' },
+    ],
+    run: function(amount) {
+      const coins = [1,3,4]; const steps = []; let idCount = 0;
+      const tree = { id:0, label:'', children:[], value:null, depth:0 };
+      const memo = {};
+      function mc(amt, nodeRef, depth) {
+        nodeRef.label = `mc(${amt})`;
+        steps.push({ type:'call', fn:`minCoins(${amt})`, depth, pseudo:0, nodeId:nodeRef.id, stackLabel:`minCoins(amount=${amt})` });
+        if (amt===0) { nodeRef.value=0; steps.push({ type:'return', fn:`minCoins(${amt})`, val:0, depth, pseudo:1, nodeId:nodeRef.id, stackLabel:`minCoins(${amt})` }); return 0; }
+        if (amt<0) { nodeRef.value=Infinity; steps.push({ type:'return', fn:`minCoins(${amt})`, val:'∞', depth, pseudo:2, nodeId:nodeRef.id, stackLabel:`minCoins(${amt})` }); return Infinity; }
+        if (memo[amt]!==undefined) { steps.push({ type:'info', fn:`minCoins(${amt})`, info:`memo hit! = ${memo[amt]}`, pseudo:3, nodeId:nodeRef.id }); nodeRef.value=memo[amt]; nodeRef.label=`mc(${amt})✓`; steps.push({ type:'return', fn:`minCoins(${amt})`, val:memo[amt], depth, pseudo:3, nodeId:nodeRef.id, stackLabel:`minCoins(${amt})` }); return memo[amt]; }
+        let best = Infinity;
+        for (const coin of coins) { if (amt-coin>=0) { const child = { id:++idCount, label:'', children:[], value:null, depth:depth+1 }; nodeRef.children.push(child); const sub = mc(amt-coin, child, depth+1); if (sub+1<best) best=sub+1; } }
+        memo[amt] = best; nodeRef.value=best;
+        steps.push({ type:'return', fn:`minCoins(${amt})`, val:best===Infinity?'∞':best, depth, pseudo:9, nodeId:nodeRef.id, stackLabel:`minCoins(${amt})` });
+        return best;
+      }
+      const result = mc(amount, tree, 0); return { steps, tree, extra:`coins=[${coins}]  minCoins(${amount}) = ${result}` };
+    }
+  },
+  flood_fill: {
+    title: 'Flood Fill', desc: 'Fill connected cells of the same color in a grid — the algorithm behind the paint bucket tool.',
+    inputLabel: 'Grid size', defaultInput: 4, max: 5, difficulty: 'hard',
+    pseudocode: [
+      { text: '<span class="fn">FUNCTION</span> fill(grid, r, c, oldColor, newColor):' },
+      { text: '  <span class="kw">IF</span> out of bounds: <span class="kw">RETURN</span>' },
+      { text: '  <span class="kw">IF</span> grid[r][c] != oldColor: <span class="kw">RETURN</span>' },
+      { text: '  grid[r][c] = newColor  <span class="cm">// Paint this cell</span>' },
+      { text: '  <span class="fn">fill</span>(grid, r-<span class="num">1</span>, c, ...)  <span class="cm">// Up</span>' },
+      { text: '  <span class="fn">fill</span>(grid, r+<span class="num">1</span>, c, ...)  <span class="cm">// Down</span>' },
+      { text: '  <span class="fn">fill</span>(grid, r, c-<span class="num">1</span>, ...)  <span class="cm">// Left</span>' },
+      { text: '  <span class="fn">fill</span>(grid, r, c+<span class="num">1</span>, ...)  <span class="cm">// Right</span>' },
+    ],
+    run: function(size) {
+      const steps = []; let idCount = 0;
+      const tree = { id:0, label:'', children:[], value:null, depth:0 };
+      const grid = Array.from({length:size}, ()=>Array.from({length:size}, ()=>Math.random()>0.35?0:1));
+      grid[0][0] = 0;
+      const filled = grid.map(r=>[...r]); let cellCount = 0;
+      function fill(r, c, nodeRef, depth) {
+        if (r<0||r>=size||c<0||c>=size) { nodeRef.label='oob'; nodeRef.value='skip'; return; }
+        if (filled[r][c]!==0) { nodeRef.label=`skip(${r},${c})`; nodeRef.value='skip'; return; }
+        nodeRef.label = `f(${r},${c})`;
+        steps.push({ type:'call', fn:`fill(${r},${c})`, depth, pseudo:0, nodeId:nodeRef.id, stackLabel:`fill(r=${r}, c=${c})` });
+        filled[r][c] = 2; cellCount++;
+        steps.push({ type:'info', fn:`fill(${r},${c})`, info:`painted cell (${r},${c})`, pseudo:3, nodeId:nodeRef.id });
+        const dirs = [[-1,0],[1,0],[0,-1],[0,1]];
+        for (const [dr,dc] of dirs) {
+          const nr=r+dr, nc=c+dc;
+          if (nr>=0&&nr<size&&nc>=0&&nc<size&&filled[nr][nc]===0) {
+            const child = { id:++idCount, label:'', children:[], value:null, depth:depth+1 }; nodeRef.children.push(child);
+            fill(nr, nc, child, depth+1);
+          }
+        }
+        nodeRef.value = 'filled';
+        steps.push({ type:'return', fn:`fill(${r},${c})`, val:'done', depth, pseudo:7, nodeId:nodeRef.id, stackLabel:`fill(r=${r},c=${c})` });
+      }
+      fill(0, 0, tree, 0); return { steps, tree, extra:`Grid: ${size}×${size}  Cells painted: ${cellCount}` };
+    }
+  },
+  quicksort: {
+    title: 'Quicksort', desc: 'Pick a pivot, partition around it, recursively sort each partition.',
+    inputLabel: 'Array size', defaultInput: 6, max: 8, difficulty: 'hard',
+    pseudocode: [
+      { text: '<span class="fn">FUNCTION</span> quicksort(arr, lo, hi):' },
+      { text: '  <span class="kw">IF</span> lo >= hi: <span class="kw">RETURN</span>  <span class="cm">// Base case</span>' },
+      { text: '  pivot = arr[hi]  <span class="cm">// Choose pivot</span>' },
+      { text: '  p = <span class="fn">partition</span>(arr, lo, hi, pivot)' },
+      { text: '  <span class="fn">quicksort</span>(arr, lo, p-<span class="num">1</span>)   <span class="cm">// Left</span>' },
+      { text: '  <span class="fn">quicksort</span>(arr, p+<span class="num">1</span>, hi)   <span class="cm">// Right</span>' },
+    ],
+    run: function(n) {
+      const steps = [];
+      const arr = Array.from({length:n}, ()=>Math.floor(Math.random()*50)+1);
+      const original = [...arr]; let idCount = 0;
+      const tree = { id:0, label:'', children:[], value:null, depth:0 };
+      function qs(a, lo, hi, nodeRef, depth) {
+        nodeRef.label = `qs(${lo},${hi})`;
+        steps.push({ type:'call', fn:`qs(lo=${lo},hi=${hi}) pivot=${a[hi]}`, depth, pseudo:0, nodeId:nodeRef.id, stackLabel:`qs(lo=${lo}, hi=${hi})` });
+        if (lo>=hi) { nodeRef.value='done'; steps.push({ type:'return', fn:`qs(${lo},${hi})`, val:'done', depth, pseudo:1, nodeId:nodeRef.id, stackLabel:`qs(lo=${lo}, hi=${hi})` }); return; }
+        const pivot = a[hi]; let i=lo-1;
+        for (let j=lo;j<hi;j++) { if (a[j]<=pivot) { i++; [a[i],a[j]]=[a[j],a[i]]; } }
+        [a[i+1],a[hi]]=[a[hi],a[i+1]];
+        const p = i+1;
+        steps.push({ type:'info', fn:`qs(${lo},${hi})`, info:`pivot=${pivot} at pos ${p}`, pseudo:2, nodeId:nodeRef.id });
+        const lChild = { id:++idCount, label:'', children:[], value:null, depth:depth+1 }; nodeRef.children.push(lChild);
+        qs(a, lo, p-1, lChild, depth+1);
+        const rChild = { id:++idCount, label:'', children:[], value:null, depth:depth+1 }; nodeRef.children.push(rChild);
+        qs(a, p+1, hi, rChild, depth+1);
+        nodeRef.value = 'done';
+        steps.push({ type:'return', fn:`qs(${lo},${hi})`, val:'done', depth, pseudo:5, nodeId:nodeRef.id, stackLabel:`qs(lo=${lo}, hi=${hi})` });
+      }
+      qs(arr, 0, n-1, tree, 0); return { steps, tree, extra:`Input: [${original.join(', ')}]  →  Sorted: [${arr.join(', ')}]` };
+    }
+  },
+  collatz: {
+    title: 'Collatz Conjecture', desc: 'If n is even, divide by 2. If odd, multiply by 3 and add 1. Repeat — will it always reach 1?',
+    inputLabel: 'n (start)', defaultInput: 27, max: 100, difficulty: 'easy',
+    pseudocode: [
+      { text: '<span class="fn">FUNCTION</span> collatz(n):' },
+      { text: '  <span class="cm">// Base case: sequence terminates at 1</span>' },
+      { text: '  <span class="kw">IF</span> n == <span class="num">1</span>: <span class="kw">RETURN</span> <span class="num">0</span>  <span class="cm">// 0 more steps</span>' },
+      { text: '  <span class="kw">IF</span> n is even:' },
+      { text: '    <span class="kw">RETURN</span> <span class="num">1</span> + <span class="fn">collatz</span>(n / <span class="num">2</span>)' },
+      { text: '  <span class="kw">ELSE</span>:  <span class="cm">// n is odd</span>' },
+      { text: '    <span class="kw">RETURN</span> <span class="num">1</span> + <span class="fn">collatz</span>(<span class="num">3</span>*n + <span class="num">1</span>)' },
+    ],
+    run: function(n) {
+      // Cap to avoid insane recursion depth
+      if (n < 1) n = 1;
+      if (n > 100) n = 100;
+      const steps = []; let idCount = 0;
+      const tree = { id:0, label:'', children:[], value:null, depth:0 };
+      const sequence = [n];
+
+      function collatz(num, nodeRef, depth) {
+        nodeRef.label = String(num);
+        steps.push({ type:'call', fn:`collatz(${num})`, depth, pseudo:0, nodeId:nodeRef.id, stackLabel:`collatz(n=${num})` });
+        if (num === 1) {
+          nodeRef.value = 0;
+          steps.push({ type:'return', fn:`collatz(${num})`, val:0, depth, pseudo:2, nodeId:nodeRef.id, stackLabel:`collatz(n=${num})` });
+          return 0;
+        }
+        const child = { id:++idCount, label:'', children:[], value:null, depth:depth+1 };
+        nodeRef.children.push(child);
+        let next, pseudoLine;
+        if (num % 2 === 0) {
+          next = num / 2;
+          pseudoLine = 4;
+          steps.push({ type:'info', fn:`collatz(${num})`, info:`${num} is even → ${num}/2 = ${next}`, pseudo:3, nodeId:nodeRef.id });
+        } else {
+          next = 3 * num + 1;
+          pseudoLine = 6;
+          steps.push({ type:'info', fn:`collatz(${num})`, info:`${num} is odd → 3×${num}+1 = ${next}`, pseudo:5, nodeId:nodeRef.id });
+        }
+        sequence.push(next);
+        const sub = collatz(next, child, depth+1);
+        const result = 1 + sub;
+        nodeRef.value = result;
+        steps.push({ type:'return', fn:`collatz(${num})`, val:result, depth, pseudo:pseudoLine, nodeId:nodeRef.id, stackLabel:`collatz(n=${num})` });
+        return result;
+      }
+      const result = collatz(n, tree, 0);
+      return { steps, tree, extra:`collatz(${n}) = ${result} steps  |  sequence: ${sequence.join(' → ')}` };
+    }
+  }
+};
+
+// ── APP STATE ──
+let currentAlgo = 'factorial';
+let steps = [], stepIndex = -1, callStack = [], autoTimer = null, speed = 600;
+let currentTree = null, treeNodes = {};
+
+function selectAlgo(name) {
+  currentAlgo = name;
+  document.querySelectorAll('.menu-item').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.menu-item[data-algo="${name}"]`)?.classList.add('active');
+  const algo = ALGOS[name];
+  document.getElementById('algo-title').textContent = algo.title;
+  document.getElementById('algo-desc').textContent = algo.desc;
+  document.getElementById('input-label').textContent = (algo.inputLabel||'Input') + ':';
+  const inputEl = document.getElementById('input-n');
+  inputEl.value = algo.defaultInput; inputEl.max = algo.max;
+
+  // Update dropdown
+  document.getElementById('dropdown-label').textContent = algo.title;
+  const badgeEl = document.getElementById('dropdown-badge');
+  badgeEl.textContent = algo.difficulty.charAt(0).toUpperCase()+algo.difficulty.slice(1);
+  badgeEl.className = `algo-badge diff-${algo.difficulty}`;
+
+  // Show/hide string custom inputs and word stat
+  const stringAlgos = ['palindrome', 'reverse_string', 'count_occurrences'];
+  const isStringAlgo = stringAlgos.includes(name);
+  const wrap = document.getElementById('string-custom-wrap');
+  wrap.style.display = isStringAlgo ? 'flex' : 'none';
+  document.getElementById('stat-word-wrap').style.display = isStringAlgo ? 'block' : 'none';
+  if (!isStringAlgo) document.getElementById('stat-word').textContent = '—';
+  // Reset custom inputs when switching
+  if (!isStringAlgo) {
+    document.getElementById('string-custom').value = '';
+    document.getElementById('count-char').value = '';
+  }
+  // Customize label per algo
+  const labels = { palindrome: 'Custom word:', reverse_string: 'Custom word:', count_occurrences: 'Custom string:' };
+  if (isStringAlgo) document.getElementById('string-custom-label').textContent = labels[name] || 'Custom word:';
+  // Show char input only for count_occurrences
+  const charWrap = document.getElementById('count-char-wrap');
+  charWrap.style.display = name === 'count_occurrences' ? 'flex' : 'none';
+
+  // Close menu
+  document.getElementById('dropdown-btn').classList.remove('open');
+  document.getElementById('algo-menu').classList.remove('open');
+
+  reset();
+}
+
+function reset() {
+  if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+  steps=[]; stepIndex=-1; callStack=[]; treeNodes={};
+  zoomReset();
+  document.getElementById('call-stack').innerHTML = '<div class="stack-empty">Step through to see the call stack</div>';
+  document.getElementById('exec-log').innerHTML = '<span style="color:var(--text-dim);font-style:italic;">Run an algorithm to see the execution log...</span>';
+  document.getElementById('result-display').innerHTML = '';
+  updateStats(0,0,0,'—');
+  renderPseudo(-1);
+  document.getElementById('tree-svg').innerHTML = '';
+  compile();
+}
+
+function compile() {
+  const algo = ALGOS[currentAlgo];
+  const n = parseInt(document.getElementById('input-n').value) || algo.defaultInput;
+  const result = algo.run(n);
+  steps = result.steps; currentTree = result.tree;
+  window._extraInfo = result.extra || '';
+  buildTreeNodes(currentTree);
+  renderTree(currentTree);
+  // Update word stat for string algos
+  const stringAlgos = ['palindrome', 'reverse_string', 'count_occurrences'];
+  if (stringAlgos.includes(currentAlgo)) {
+    const customEl = document.getElementById('string-custom');
+    let word = customEl && customEl.value.trim() ? customEl.value.trim() : '';
+    if (!word) {
+      if (currentAlgo === 'palindrome') {
+        const words = ['racecar','level','hello','madam','world','noon'];
+        word = words[Math.min(n, words.length-1)];
+      } else if (currentAlgo === 'reverse_string') {
+        const words = ['hello','world','code','tree','algo'];
+        word = words[Math.min(n, words.length-1)];
+      } else {
+        const pairs = [['mississippi','s'],['banana','a'],['programming','g'],['recursion','r']];
+        word = pairs[Math.min(n, pairs.length-1)][0];
+      }
+    }
+    const charEl = document.getElementById('count-char');
+    const charVal = currentAlgo === 'count_occurrences' && charEl && charEl.value.trim() ? ' / char: "' + charEl.value.trim()[0] + '"' : '';
+    document.getElementById('stat-word').textContent = word + charVal;
+  }
+}
+
+function buildTreeNodes(node) {
+  treeNodes[node.id] = { ...node, active:false, returned:false };
+  for (const c of node.children) buildTreeNodes(c);
+}
+
+function stepForward() {
+  if (stepIndex >= steps.length-1) return;
+  stepIndex++;
+  applyStep(steps[stepIndex]);
+}
+
+function stepBack() {
+  if (stepIndex < 0) return;
+  stepIndex--;
+  callStack = []; treeNodes = {};
+  buildTreeNodes(currentTree);
+  renderTree(currentTree);
+  const log = [];
+  for (let i=0;i<=stepIndex;i++) { applyStepToState(steps[i], true); log.push(steps[i]); }
+  renderLog(log);
+}
+
+function applyStep(step) {
+  applyStepToState(step, false);
+  const logEl = document.getElementById('exec-log');
+  const entry = document.createElement('span');
+  if (step.type==='call') entry.innerHTML = `<span class="log-call">→ ${step.fn}</span>  `;
+  else if (step.type==='return') entry.innerHTML = `<span class="log-return">← ${step.fn} = ${step.val}</span>  `;
+  else entry.innerHTML = `<span style="color:#ffb400">[${step.info}]</span>  `;
+  if (logEl.querySelector('span[style*="font-style"]')) logEl.innerHTML = '';
+  logEl.appendChild(entry);
+  logEl.scrollLeft = logEl.scrollWidth;
+}
+
+function applyStepToState(step, silent) {
+  renderPseudo(step.pseudo !== undefined ? step.pseudo : -1);
+  if (step.type==='call') {
+    callStack.push({ label:step.stackLabel, depth:step.depth, id:step.nodeId });
+    if (!silent && treeNodes[step.nodeId]) { treeNodes[step.nodeId].active=true; renderTree(currentTree); }
+  } else if (step.type==='return') {
+    if (!silent && treeNodes[step.nodeId]) { treeNodes[step.nodeId].returned=true; treeNodes[step.nodeId].active=false; }
+    const idx = callStack.map(f=>f.id).lastIndexOf(step.nodeId);
+    if (idx!==-1) callStack.splice(idx,1);
+    if (!silent) renderTree(currentTree);
+  }
+  renderCallStack();
+  const calls = steps.slice(0,stepIndex+1).filter(s=>s.type==='call').length;
+  const returns = steps.slice(0,stepIndex+1).filter(s=>s.type==='return').length;
+  const maxDepth = steps.slice(0,stepIndex+1).filter(s=>s.type==='call').reduce((m,s)=>Math.max(m,s.depth),0);
+  const lastReturn = [...steps].slice(0,stepIndex+1).filter(s=>s.type==='return').pop();
+  const result = lastReturn && stepIndex===steps.length-1 ? lastReturn.val : '—';
+  updateStats(calls, maxDepth, returns, result);
+  if (stepIndex===steps.length-1) {
+    const lastRet = steps.filter(s=>s.type==='return').pop();
+    if (lastRet) document.getElementById('result-display').innerHTML = `<div class="result-box"><strong>Result:</strong> ${lastRet.val}${window._extraInfo?'<br><strong>Info:</strong> '+window._extraInfo:''}</div>`;
+  }
+}
+
+function renderLog(logSteps) {
+  const logEl = document.getElementById('exec-log'); logEl.innerHTML = '';
+  for (const step of logSteps) {
+    const entry = document.createElement('span');
+    if (step.type==='call') entry.innerHTML = `<span class="log-call">→ ${step.fn}</span>  `;
+    else if (step.type==='return') entry.innerHTML = `<span class="log-return">← ${step.fn} = ${step.val}</span>  `;
+    else entry.innerHTML = `<span style="color:#ffb400">[${step.info}]</span>  `;
+    logEl.appendChild(entry);
+  }
+  logEl.scrollLeft = logEl.scrollWidth;
+}
+
+function renderCallStack() {
+  const el = document.getElementById('call-stack');
+  if (callStack.length===0) { el.innerHTML='<div class="stack-empty">Call stack is empty</div>'; return; }
+  el.innerHTML = '';
+  for (const frame of callStack) {
+    const div = document.createElement('div');
+    div.className = 'stack-frame';
+    div.innerHTML = `<div class="frame-fn">${frame.label}</div><div class="frame-return">depth: <span>${frame.depth}</span></div>`;
+    el.appendChild(div);
+  }
+}
+
+function renderPseudo(activeLine) {
+  const algo = ALGOS[currentAlgo];
+  document.getElementById('pseudocode-display').innerHTML = algo.pseudocode.map((line,i)=>{
+    const cls = i===activeLine ? 'line-active' : '';
+    return `<span class="${cls}">${line.text}\n</span>`;
+  }).join('');
+}
+
+function updateStats(calls, depth, returns, result) {
+  document.getElementById('stat-calls').textContent = calls;
+  document.getElementById('stat-depth').textContent = depth;
+  document.getElementById('stat-returns').textContent = returns;
+  document.getElementById('stat-result').textContent = result !== undefined ? result : '—';
+}
+
+function runAuto() {
+  if (autoTimer) { clearInterval(autoTimer); autoTimer=null; return; }
+  function tick() { if (stepIndex>=steps.length-1) { clearInterval(autoTimer); autoTimer=null; return; } stepForward(); }
+  tick(); autoTimer = setInterval(tick, speed);
+}
+
+function updateSpeed() {
+  speed = parseInt(document.getElementById('speed').value);
+  document.getElementById('speed-label').textContent = speed+'ms';
+  if (autoTimer) { clearInterval(autoTimer); autoTimer=null; runAuto(); }
+}
+
+function switchTab(name, e) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  e.currentTarget.classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+// ── TREE RENDERING ──
+function renderTree(root) {
+  const container = document.getElementById('tree-container');
+  const svg = document.getElementById('tree-svg');
+  const W = container.clientWidth || 500;
+  const layout = [];
+  function assignPos(node, depth, left, right) {
+    const x = (left+right)/2;
+    layout.push({ id:node.id, x, y:depth*65+30, label:node.label, depth, returned:treeNodes[node.id]?.returned, active:treeNodes[node.id]?.active });
+    const n = node.children.length;
+    if (!n) return;
+    const step = (right-left)/n;
+    node.children.forEach((c,i)=>assignPos(c, depth+1, left+i*step, left+(i+1)*step));
+  }
+  assignPos(root, 0, 0, W);
+  const maxDepth = Math.max(...layout.map(n=>n.depth));
+  const H = (maxDepth+1)*65+40;
+  svg.setAttribute('width', W); svg.setAttribute('height', H);
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+
+  const nodeMap2 = {}; layout.forEach(n=>nodeMap2[n.id]=n);
+  let html = '';
+  function drawLinks(node) {
+    const p = nodeMap2[node.id];
+    for (const c of node.children) {
+      const ch = nodeMap2[c.id];
+      if (ch) html += `<line x1="${p.x}" y1="${p.y}" x2="${ch.x}" y2="${ch.y}" stroke="rgba(0,191,99,0.3)" stroke-width="1.5" fill="none"/>`;
+      drawLinks(c);
+    }
+  }
+  drawLinks(root);
+  for (const n of layout) {
+    const fill = n.returned ? 'var(--green)' : n.active ? '#006633' : '#0a1a10';
+    const stroke = (n.active||n.returned) ? 'var(--green)' : 'rgba(0,191,99,0.3)';
+    const textColor = n.returned ? '#000' : '#e8f5ee';
+    const label = n.label || '...';
+    html += `<g><circle cx="${n.x}" cy="${n.y}" r="22" fill="${fill}" stroke="${stroke}" stroke-width="2"/><text x="${n.x}" y="${n.y}" text-anchor="middle" dominant-baseline="middle" fill="${textColor}" font-family="Montserrat,sans-serif" font-size="9" font-weight="700">${label.length>9?label.slice(0,9)+'…':label}</text></g>`;
+  }
+  svg.innerHTML = html;
+}
+
+// ── INIT ──
+reset();
+</script>
+</body>
+</html>
