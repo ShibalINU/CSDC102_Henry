@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <ctime>
 using namespace std;
 
 //--------------------------------------------------------------------Main functions
@@ -13,10 +14,12 @@ int login(string &adminPasscode)
     cout << "\n[1] User   [2] Admin   [3] Shutdown" << endl;
     cout << "Enter your choice: ";
     cin >> roleChoice;
+    
     if (roleChoice == 1)
     {
         return 1; // Client role
     }
+    
     else if (roleChoice == 2)
     {
         cout << "Enter admin passcode: ";
@@ -31,6 +34,11 @@ int login(string &adminPasscode)
             cout << "Admin access granted." << endl;
             return 2; // Admin role
         }
+    }
+    
+    else 
+    {
+        return 3;
     }
 };
 
@@ -54,6 +62,17 @@ string decodeString(string encoded)
     return decoded;
 };
 
+void displayDateTime() {
+    time_t now = time(0);
+    tm* timeinfo = localtime(&now);
+
+    cout << "Date: " << (timeinfo->tm_mon + 1) << "/"
+         << timeinfo->tm_mday << "/"
+         << (timeinfo->tm_year + 1900);
+    cout << " Time: " << timeinfo->tm_hour << ":"
+         << timeinfo->tm_min << endl;
+}
+
 // Display helper (const reference - read-only)
 void displayMenu(const vector<string> &bankNames,
                  const vector<double> &localFees) {
@@ -67,42 +86,78 @@ void clientMenu(vector<string> &cardNumbers,
                 vector<string> &accountTypes
                 /*, ... other vectors if needed */)
 {
-    int choiceUser;
-    cout << "Client Menu: " << endl;
-    cout << "1. Check Balance" << endl;
-    cout << "2. Withdraw Cash" << endl;
-    cout << "3. Deposit Cash" << endl;
-    cout << "4. Transfer Funds" << endl;
-    cout << "5. View Transaction History" << endl;
-    cout << "6. Exit" << endl;
-    //-----
-    cout << "\nEnter your choice: ";
-    cin >> choiceUser;
+    
+    string cardNum_user;
+    cout << "Enter Card Number: ";
+    cin >> cardNum_user;
+    
+    for(int i = 0; i < cardNumbers.size(); i++) {
+        if (cardNum_user == cardNumbers[i]) {
+            
+            string userPin;
+            cout << "Enter PIN: ";
+            cin >> userPin;
+            
+            if (userPin == encodedPINs[i]) {
+                
+                string userBank = userBanks[i];
+                string userAccountType = accountTypes[i];
+                
+                    int choiceUser;
+                    cout << "Client Menu: " << endl;
+                    cout << "1. Check Balance" << endl;
+                    cout << "2. Withdraw Cash" << endl;
+                    cout << "3. Deposit Cash" << endl;
+                    cout << "4. Transfer Funds" << endl;
+                    cout << "5. View Transaction History" << endl;
+                    cout << "6. Exit" << endl;
+                    //-----
+                    cout << "\nEnter your choice: ";
+                    cin >> choiceUser;
+                
+                    if (choiceUser == 1)
+                    {
+                        displayDateTime();
+                        cout << "Remaining Balance: " << balances[i];
+                        
+                    }
+                    else if (choiceUser == 2)
+                    {
+                        // Withdraw cash
+                    }
+                    else if (choiceUser == 3)
+                    {
+                        // Deposit cash
+                    }
+                    else if (choiceUser == 4)
+                    {
+                        // Transfer funds
+                    }
+                    else if (choiceUser == 5)
+                    {
+                        // View transaction history
+                    }
+                    else
+                    {
+                        cout << "Exiting..." << endl;
+                    }
+                
+            }
+            
+            else {
+                cout << "Wrong pw";
+            }
+        }
+        
+        else {
+            cout << "Account not found.\n"; 
+        }
+    }
+    
+    
+    
+    
 
-    if (choiceUser == 1)
-    {
-        // Check balance
-    }
-    else if (choiceUser == 2)
-    {
-        // Withdraw cash
-    }
-    else if (choiceUser == 3)
-    {
-        // Deposit cash
-    }
-    else if (choiceUser == 4)
-    {
-        // Transfer funds
-    }
-    else if (choiceUser == 5)
-    {
-        // View transaction history
-    }
-    else
-    {
-        cout << "Exiting..." << endl;
-    }
 };
 
 void adminMenu(vector<string> &cardNumbers,
