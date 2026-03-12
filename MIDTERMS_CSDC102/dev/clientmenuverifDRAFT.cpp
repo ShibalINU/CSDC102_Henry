@@ -8,39 +8,45 @@ void clientMenu(vector<string> &cardNumbers,
                 vector<double> &balances
                 /*, ... other vectors if needed */)
 {
-    
+
     string cardNum_user;
     cout << "Enter Card Number: ";
     cin >> cardNum_user;
-    
-    for(int i = 0; i < cardNumbers.size(); i++) {
-        if (cardNum_user == cardNumbers[i]) {
-            
+
+    for (int i = 0; i < cardNumbers.size(); i++)
+    {
+        if (cardNum_user == cardNumbers[i])
+        {
+
             string userPin;
             cout << "Enter PIN: ";
             cin >> userPin;
-            
-            if (userPin == pins[i]) {
+
+            if (userPin == pins[i])
+            {
                 break;
             }
-            
-            else {
+
+            else
+            {
                 cout << "Wrong pw";
             }
         }
-        else {
+        else
+        {
             cout << "Account not found.\n";
         }
     }
 }
 
-int main () {
-    
+int main()
+{
+
     vector<string> cardNumbers = {"67891026", "12345678"};
     vector<string> pins = {"3456", "8976"};
     vector<double> balances = {2, 6};
-    
+
     clientMenu(cardNumbers, pins, balances);
-    
+
     return 0;
 }

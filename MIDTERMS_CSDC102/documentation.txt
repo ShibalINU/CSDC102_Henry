@@ -85,3 +85,6 @@ main()
     ->role routing
         -if else statement for role
             role == 1, 2, 3
+
+ASCII CONVERSION
+https://www.geeksforgeeks.org/cpp/cpp-convert-string-to-integer-vector/ 

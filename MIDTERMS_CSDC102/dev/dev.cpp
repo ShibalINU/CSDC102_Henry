@@ -1,24 +1,60 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <ctime>
 using namespace std;
 
 //--------------------------------------------------------------------Main functions
 
-int login(string &adminPasscode)
+int login(string &adminPasscode,
+          vector<string> &cardNumbers,
+          vector<string> &encodedPINs)
 {
     int roleChoice;
-    string passcode;
     cout << "==========ATM System!==========" << endl;
-    cout << "\n[1] User   [2] Admin   [3] Shutdown" << endl;
+    cout << "\n[1] Client   [2] Admin   [3] Shutdown" << endl;
     cout << "Enter your choice: ";
     cin >> roleChoice;
+
     if (roleChoice == 1)
     {
-        return 1; // Client role
+
+        // PUT AUTHENTICATION ON CLIENT MENU
+        string cardNum_user;
+        cout << "Enter Card Number: ";
+        cin >> cardNum_user;
+
+        for (int i = 0; i < cardNumbers.size(); i++)
+        {
+
+            if (cardNum_user == cardNumbers[i])
+            {
+                string userPin;
+                cout << "Enter PIN: ";
+                cin >> userPin;
+
+                if (userPin == encodedPINs[i])
+                {
+
+                    int accountIndex = i;
+                    return 1; // Client role
+                }
+
+                else
+                {
+                    cout << "Incorrect Pin. Please try again.\n";
+                }
+            }
+            else
+            {
+                return login(adminPasscode, cardNumbers, encodedPINs);
+            }
+        }
     }
+
     else if (roleChoice == 2)
     {
+        string passcode;
         cout << "Enter admin passcode: ";
         cin >> passcode;
         if (passcode != adminPasscode)
@@ -31,6 +67,11 @@ int login(string &adminPasscode)
             cout << "Admin access granted." << endl;
             return 2; // Admin role
         }
+    }
+
+    else
+    {
+        return 3;
     }
 };
 
@@ -54,6 +95,18 @@ string decodeString(string encoded)
     return decoded;
 };
 
+void displayDateTime()
+{
+    time_t now = time(0);
+    tm *timeinfo = localtime(&now);
+
+    cout << "Date: " << (timeinfo->tm_mon + 1) << "/"
+         << timeinfo->tm_mday << "/"
+         << (timeinfo->tm_year + 1900);
+    cout << " Time: " << timeinfo->tm_hour << ":"
+         << timeinfo->tm_min << endl;
+}
+
 // Display helper (const reference - read-only)
 void displayMenu(const vector<string> &bankNames,
                  const vector<double> &localFees) {
@@ -67,42 +120,48 @@ void clientMenu(vector<string> &cardNumbers,
                 vector<string> &accountTypes
                 /*, ... other vectors if needed */)
 {
-    int choiceUser;
-    cout << "Client Menu: " << endl;
-    cout << "1. Check Balance" << endl;
-    cout << "2. Withdraw Cash" << endl;
-    cout << "3. Deposit Cash" << endl;
-    cout << "4. Transfer Funds" << endl;
-    cout << "5. View Transaction History" << endl;
-    cout << "6. Exit" << endl;
-    //-----
-    cout << "\nEnter your choice: ";
-    cin >> choiceUser;
 
-    if (choiceUser == 1)
+    int choiceUser;
+
+    do
     {
-        // Check balance
-    }
-    else if (choiceUser == 2)
-    {
-        // Withdraw cash
-    }
-    else if (choiceUser == 3)
-    {
-        // Deposit cash
-    }
-    else if (choiceUser == 4)
-    {
-        // Transfer funds
-    }
-    else if (choiceUser == 5)
-    {
-        // View transaction history
-    }
-    else
-    {
-        cout << "Exiting..." << endl;
-    }
+        cout << "Client Menu: " << endl;
+        cout << "1. Check Balance" << endl;
+        cout << "2. Withdraw Cash" << endl;
+        cout << "3. Deposit Cash" << endl;
+        cout << "4. Transfer Funds" << endl;
+        cout << "5. View Transaction History" << endl;
+        cout << "6. Exit" << endl;
+        //-----
+        cout << "\nEnter your choice: ";
+        cin >> choiceUser;
+
+        if (choiceUser == 1)
+        {
+            displayDateTime();
+        }
+        else if (choiceUser == 2)
+        {
+            // Withdraw cash
+        }
+        else if (choiceUser == 3)
+        {
+            // Deposit cash
+        }
+        else if (choiceUser == 4)
+        {
+            // Transfer funds
+        }
+        else if (choiceUser == 5)
+        {
+            // View transaction history
+        }
+        else
+        {
+            cout << "Invalid input.\n";
+        }
+
+    } while (choiceUser != 6);
 };
 
 void adminMenu(vector<string> &cardNumbers,
@@ -146,11 +205,6 @@ void adminMenu(vector<string> &cardNumbers,
         // User management
         if (ChoiceUserManagement == 1)
         {
-            cardNumbers.push_back("1234567890123456");
-            encodedPINs.push_back(encodeString("1234"));
-            balances.push_back(10000);
-            userBanks.push_back("BDO");
-            accountTypes.push_back("Local");
             for (size_t i = 0; i < cardNumbers.size(); ++i)
             {
                 // this is just for checking purposes to see if the new account is added to the vectors
@@ -166,10 +220,7 @@ void adminMenu(vector<string> &cardNumbers,
         {
             for (int i = 0; i < cardNumbers.size(); ++i)
             {
-                cout << "Card: " << cardNumbers[i]
-                     << ", Bank: " << userBanks[i]
-                     << ", Type: " << accountTypes[i]
-                     << ", Balance: " << balances[i] << endl;
+                cout << cardNumbers[i] << " - " << userBanks[i] << ", " << accountTypes[i] << ": " << balances[i] << endl;
             }
             // Add new accountX`
         }
@@ -198,6 +249,15 @@ void adminMenu(vector<string> &cardNumbers,
 
 //--------------------------------------------------------------------Utility Functions
 
+void clearScreen()
+{
+#ifdef _WIN32
+    system("cls");
+#else
+    system("clear");
+#endif
+}
+
 bool validateCardNumber(string card);
 double calculateFeeRecursive(double amount, int iterations);
 void logTransaction(const string &cardNum,
@@ -212,23 +272,23 @@ int main()
     double intlFees[NUM_BANKS] = {150, 125, 200, 100};
     double dailyLimits[NUM_BANKS] = {50000, 75000, 100000, 60000};
 
-    const int NUM_DENOMINATIONS = 2;
-    int denominations[NUM_DENOMINATIONS] = {500, 1000};
-    int billCount[NUM_DENOMINATIONS] = {500, 500}; // Current count of each
+    const int NUM_DENOMINATIONS = 3;
+    int denominations[NUM_DENOMINATIONS] = {100, 500, 1000};
+    int billCount[NUM_DENOMINATIONS] = {500, 500, 500}; // Current count of each
 
-    vector<string> cardNumbers;
+    vector<string> cardNumbers = {"12345678910", "10987654321", "11111111111"};
     // Parallel vectors - keep in sync!
 
-    vector<string> encodedPINs;
+    vector<string> encodedPINs = {"6767", "9876", "6543"};
     // Encoded passwords
 
-    vector<double> balances;
+    vector<double> balances = {9000, 5600, 6700};
     // Account balances
 
-    vector<string> userBanks;
+    vector<string> userBanks = {"BPI", "BDO", "Metrobank"};
     // Which bank
 
-    vector<string> accountTypes;
+    vector<string> accountTypes = {"Local", "International", "International"};
     // "Local" or "International"
 
     // For each account's transaction history
@@ -241,21 +301,21 @@ int main()
 
     string adminPasscode = "6767"; // Default password
 
-    int role = login(adminPasscode);
     while (true)
     {
+        int role = login(adminPasscode, cardNumbers, encodedPINs);
         if (role == 1)
-        {
             clientMenu(cardNumbers, balances, encodedPINs, userBanks, accountTypes);
-        }
         else if (role == 2)
-        {
             adminMenu(cardNumbers, balances, encodedPINs, adminPasscode, userBanks, accountTypes);
+        else if (role == 3)
+        {
+            break; // shutdown
         }
         else
         {
-            cout << "Shutting down..." << endl;
-            return 0;
+            cout << "Access Denied.\n";
+            break;
         }
     }
     return 0;
