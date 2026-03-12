@@ -16,62 +16,66 @@ int login(string &adminPasscode,
 	cout << "Enter your choice: ";
 	cin >> roleChoice;
 
-	if (roleChoice == 1)
-	{
-		string cardNum_user;
-		cout << "Enter Card Number: ";
-		cin >> cardNum_user;
-
-		for(int i = 0; i < cardNumbers.size(); i++) { //MAY MALI P DTO AHAHAHHA
-
-			if (cardNum_user == cardNumbers[i]) {
-				string userPin;
-				cout << "Enter PIN: ";
-				cin >> userPin;
-
-				if(userPin == encodedPINs[i]) {
-				    
-				    return 1; //Client role
-				}
-				
-				else {
-				    cout << "Incorrect Pin. Please try again.";
-				}
-			}
-			else {
-				cout << "Account not found.\n";
-			}
-		}
-	}
-
-	else if (roleChoice == 2)
-{
-	string passcode;
-	cout << "Enter admin passcode: ";
-	cin >> passcode;
-	if (passcode != adminPasscode)
-		{
-			cout << "Incorrect passcode. Access denied." << endl;
-			return 0; // Invalid role
-		}
-		else
-		{
-			cout << "Admin access granted." << endl;
-			return 2; // Admin role
-		}
-	}
-
-	else
-	{
-		return 3;
-	}
+	do {
+	
+    	if (roleChoice == 1)
+    	{
+    		string cardNum_user;
+    		cout << "Enter Card Number: ";
+    		cin >> cardNum_user;
+    
+    		for(int i = 0; i < cardNumbers.size(); i++) { //MAY MALI P DTO AHAHAHHA
+    
+    			if (cardNum_user == cardNumbers[i]) {
+    				string userPin;
+    				cout << "Enter PIN: ";
+    				cin >> userPin;
+    
+    				if(userPin == encodedPINs[i]) {
+    				    
+    				    int accountIndex = i;
+    				    return 1; //Client role
+    				}
+    				
+    				else {
+    				    cout << "Incorrect Pin. Please try again.\n";
+    				}
+    			}
+    			else {
+    				return login(adminPasscode, cardNumbers, encodedPINs);
+    			}
+    		}
+    	}
+    
+    	else if (roleChoice == 2)
+        {
+    	string passcode;
+    	cout << "Enter admin passcode: ";
+    	cin >> passcode;
+    	if (passcode != adminPasscode)
+    		{
+    			cout << "Incorrect passcode. Access denied." << endl;
+    			return 0; // Invalid role
+    		}
+    		else
+    		{
+    			cout << "Admin access granted." << endl;
+    			return 2; // Admin role
+    		}
+    	}
+    
+    	else
+    	{
+    		return 3;
+    	}
+	} while (roleChoice != 3);
 };
 
 string encodeString(string plain)
 {
 	string encoded = plain;
 	for (char &c : encoded)
-	{
+    {
 		c += 3; // Simple Caesar cipher
 	}
 	return encoded;
@@ -129,6 +133,7 @@ void clientMenu(vector<string> &cardNumbers,
         if (choiceUser == 1)
         {
             displayDateTime();
+        
         }
         else if (choiceUser == 2)
         {
@@ -240,6 +245,15 @@ void adminMenu(vector<string> &cardNumbers,
 
 //--------------------------------------------------------------------Utility Functions
 
+void clearScreen(){
+#ifdef _WIN32
+    system("cls");
+#else
+    system("clear");
+#endif
+}
+
+
 bool validateCardNumber(string card);
 double calculateFeeRecursive(double amount, int iterations);
 void logTransaction(const string &cardNum,
@@ -254,9 +268,9 @@ int main()
 	double intlFees[NUM_BANKS] = {150, 125, 200, 100};
 	double dailyLimits[NUM_BANKS] = {50000, 75000, 100000, 60000};
 
-	const int NUM_DENOMINATIONS = 2;
-	int denominations[NUM_DENOMINATIONS] = {500, 1000};
-	int billCount[NUM_DENOMINATIONS] = {500, 500}; // Current count of each
+	const int NUM_DENOMINATIONS = 3; 
+	int denominations[NUM_DENOMINATIONS] = {100, 500, 1000};
+	int billCount[NUM_DENOMINATIONS] = {500, 500, 500}; // Current count of each
 
 	vector<string> cardNumbers = {"12345678910", "10987654321", "11111111111"};
 	// Parallel vectors - keep in sync!
