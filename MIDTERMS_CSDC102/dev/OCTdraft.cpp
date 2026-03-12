@@ -15,8 +15,6 @@ int login(string &adminPasscode,
 	cout << "\n[1] Client   [2] Admin   [3] Shutdown" << endl;
 	cout << "Enter your choice: ";
 	cin >> roleChoice;
-
-	do {
 	
     	if (roleChoice == 1)
     	{
@@ -68,7 +66,6 @@ int login(string &adminPasscode,
     	{
     		return 3;
     	}
-	} while (roleChoice != 3);
 };
 
 string encodeString(string plain)
