@@ -18,11 +18,13 @@ int login(string &adminPasscode,
 	
     	if (roleChoice == 1)
     	{
+
+			//PUT AUTHENTICATION ON CLIENT MENU
     		string cardNum_user;
     		cout << "Enter Card Number: ";
     		cin >> cardNum_user;
     
-    		for(int i = 0; i < cardNumbers.size(); i++) { //MAY MALI P DTO AHAHAHHA
+    		for(int i = 0; i < cardNumbers.size(); i++) { 
     
     			if (cardNum_user == cardNumbers[i]) {
     				string userPin;
