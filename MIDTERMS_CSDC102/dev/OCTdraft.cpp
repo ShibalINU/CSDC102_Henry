@@ -129,10 +129,11 @@ void clientMenu(vector<string> &cardNumbers,
             		//-----
             		cout << "\nEnter your choice: ";
             		cin >> choiceUser;
-            
+            		
+            		clearScreen();
+            		
             		if (choiceUser == 1)
             		{
-            		    clearScreen();
             			displayDateTime();
             			cout << "Current Balance: Php " << balances[accountIndex] << endl;
             		}
