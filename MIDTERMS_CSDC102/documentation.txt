@@ -86,5 +86,30 @@ main()
         -if else statement for role
             role == 1, 2, 3
 
+main()
+ ├── login()
+ ├── clientMenu()
+ │    ├── checkBalance()
+ │    ├── withdraw()
+ │    ├── transfer()
+ │    ├── viewTransactionHistory()
+ │    ├── changePIN()
+ │    └── logout
+ │
+ └── adminMenu()
+      ├── viewCash()
+      ├── refillCash()
+      ├── createAccount()
+      ├── viewAccounts()
+      ├── deleteAccount()
+      ├── resetPIN()
+      └── changeAdminPasscode()
+
+
 ASCII CONVERSION
 https://www.geeksforgeeks.org/cpp/cpp-convert-string-to-integer-vector/ 
+
+Creating files .CONVERSION
+https://www.w3schools.com/CPP/cpp_files.asp
+
+
