@@ -111,14 +111,21 @@ void clientMenu(vector<string> &cardNumbers,
 
 			if (userPin == encodedPINs[i])
 			{
+				clearScreen();
+				
+				cout << "WELCOME!\n";
+				cout << "\nYour card has been identified as:\n";
+				cout << "Bank: " << userBanks[i] << endl;
+				cout << "Account Type: " << accountTypes[i] << endl;
+				cout << "\nTransaction fees may apply depending on your account type.\n";
+				cout << "Please proceed.\n";
+				
 				int accountIndex = i;
 				int choiceUser;
 				char userDecision;
 				
             	do
             	{
-            	    clearScreen();
-            	    
             		cout << "\n==== CLIENT MENU ====" << endl;
             		cout << "1. Check Balance" << endl;
             		cout << "2. Withdraw Cash" << endl;
@@ -134,12 +141,19 @@ void clientMenu(vector<string> &cardNumbers,
             		
             		if (choiceUser == 1)
             		{
+            			// Display balance
             			displayDateTime();
             			cout << "Current Balance: Php " << balances[accountIndex] << endl;
             		}
             		else if (choiceUser == 2)
             		{
+						//KULANG PA TO
             			// Withdraw cash
+            			int withdrawAmount;
+            			cout << "Enter amount: ";
+            			cin >> withdrawAmount;
+            			
+            			balances[accountIndex] -= withdrawAmount; // update balance
             		}
             		else if (choiceUser == 3)
             		{
@@ -165,6 +179,8 @@ void clientMenu(vector<string> &cardNumbers,
             		
             		cout << "\nWould you like to perform another transaction? (Y/N): ";
             		cin >> userDecision;
+            		
+            		clearScreen();
             
             	} while (userDecision == 'Y' || userDecision == 'y');
 			}
