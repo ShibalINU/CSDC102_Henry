@@ -138,9 +138,9 @@ void clientMenu(vector<string> &cardNumbers,
 					cout << "\n==== CLIENT MENU ====" << endl;
 					cout << "1. Check Balance" << endl;
 					cout << "2. Withdraw Cash" << endl;
-					cout << "3. Deposit Cash" << endl;
-					cout << "4. Transfer Funds" << endl;
-					cout << "5. View Transaction History" << endl;
+					cout << "3. Transfer Cash" << endl;
+					cout << "4. View Transaction History" << endl;
+					cout << "5. Change PIN" << endl;
 					cout << "6. Exit" << endl;
 					//-----
 					cout << "\nEnter your choice: ";
@@ -160,7 +160,7 @@ void clientMenu(vector<string> &cardNumbers,
 						int withdrawAmount;
 						cout << "Enter amount: ";
 						cin >> withdrawAmount;
-
+						
 						// Deduct appropriate fee
 						if(accountTypes[accountIndex] == "Local")
 						{
@@ -187,15 +187,37 @@ void clientMenu(vector<string> &cardNumbers,
 					
 					else if (choiceUser == 3)
 					{
-						// Deposit cash
+						//NOT YET DONE
+						// Transfer cash
+						string recipientCard;
+						cout << "Enter recipient card number: ";
+						cin >> recipientCard;
+				
 					}
 					else if (choiceUser == 4)
 					{
-						// Transfer funds
+						// View transaction history
 					}
 					else if (choiceUser == 5)
 					{
-						// View transaction history
+						// Change PIN
+						string verifPIN;
+						cout << "Re-enter PIN: ";
+						cin >> verifPIN;
+						
+						if(verifPIN == encodedPINs[accountIndex]) 
+						{
+						    //INCOMPLETE: NO ENCODING AND VALIDATE YET
+						    clearScreen();
+						    string newPIN;
+						    cout << "Enter new PIN: ";
+						    cin >> newPIN;
+						    encodedPINs[accountIndex] = newPIN; 
+						}
+						else 
+						{
+						    cout << "Incorrect PIN. Please try again.";
+						}
 					}
 					else if (choiceUser == 6)
 					{
