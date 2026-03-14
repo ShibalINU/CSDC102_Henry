@@ -48,12 +48,14 @@ string encodeString(string plain);
 string decodeString(string encoded);
 void displayDateTime();
 void clearScreen();
+void refillCash(int denom[], int billCount[]);
 void viewAccounts(vector<string> &cardNumbers, vector<double> &balances);
 
 //--------------------------------------------------------------------Main
 
 int main()
 {
+    // vectors
     vector<string> cardNumbers = {"12345678910", "10987654321", "11111111111"};
     vector<string> encodedPINs = {"6767", "9876", "6543"};
     vector<double> balances = {9000, 5600, 6700};
@@ -61,7 +63,6 @@ int main()
     vector<string> accountTypes = {"Local", "International", "International"};
 
     string adminPasscode = "6767";
-
     while (true)
     {
         int role = login(adminPasscode, cardNumbers, encodedPINs);
@@ -94,14 +95,14 @@ int login(string &adminPasscode, vector<string> &cardNumbers, vector<string> &en
     cout << BOLD << BLUE << "Supported Banks: BDO, BPI, Metrobank, Security Bank" << endl;
     cout << "====================================================" << RESET << endl
          << endl;
-    cout << BOLD << GREEN << "\n[1] Client   [2] Admin   [3] Shutdown" << RESET << endl;
+    cout << BOLD << YELLOW << "\n[1] Client   [2] Admin   [3] Shutdown" << RESET << endl;
     cout << "Enter your choice: ";
     cin >> roleChoice;
 
     if (roleChoice == 1)
     {
         string cardNum_user;
-        cout << "Enter Card Number: ";
+        cout << BOLD << YELLOW << "Enter Card Number: " << RESET << endl;
         cin >> cardNum_user;
 
         for (int i = 0; i < cardNumbers.size(); i++)
@@ -109,7 +110,7 @@ int login(string &adminPasscode, vector<string> &cardNumbers, vector<string> &en
             if (cardNum_user == cardNumbers[i])
             {
                 string userPin;
-                cout << "Enter PIN: ";
+                cout << BOLD << YELLOW << "Enter PIN: " << RESET << endl;
                 cin >> userPin;
 
                 if (userPin == encodedPINs[i])
@@ -126,29 +127,26 @@ int login(string &adminPasscode, vector<string> &cardNumbers, vector<string> &en
         cout << "Card not found.\n";
         return 0;
     }
-    else if (roleChoice == 2)
+    else if (roleChoice == 2) // admin attempts
     {
-        string passcode;
-        cout << "Enter admin passcode: ";
-        cin >> passcode;
+        for (int attempts = 0; attempts < 3; ++attempts)
+        {
+            string passcode;
+            cout << "Enter admin passcode: ";
+            cin >> passcode;
 
-        if (passcode != adminPasscode)
-        {
-            cout << "Incorrect passcode. Access denied." << endl;
-            return 0; // Invalid role
-        }
-        else
-        {
-            cout << "Admin access granted." << endl;
-            return 2; // Admin role
+            if (passcode == adminPasscode)
+            {
+                cout << BOLD << GREEN << "Admin access granted." << RESET << endl;
+                return 2; // admin role
+            }
+
+            cout << BOLD << RED << "Incorrect passcode (" << attempts + 1 << "/3).\n"
+                 << RESET;
         }
     }
-    else if (roleChoice == 3)
-    {
-        return 3;
-    }
-
-    return 0;
+    cout << BOLD << RED << "Access denied. System Locked." << RESET << endl;
+    return 3;
 }
 
 //--------------------------------------------------------------------Security functions
@@ -261,9 +259,10 @@ void adminMenu(vector<string> &cardNumbers,
         cout << "3. Create Account" << endl;
         cout << "4. View accounts" << endl;
         cout << "5. Delete Account" << endl;
-        cout << "6. Change admin Passcode" << endl;
-        cout << "7. List of all admin users" << endl;
-        cout << "8. Exit" << endl;
+        cout << "6. Reset account passwords" << endl;
+        cout << "7. Change admin Passcode" << endl;
+        cout << "8. List of all admin users" << endl;
+        cout << "9. Exit" << endl;
 
         cout << "\nEnter your choice: ";
         cin >> choiceAdmin;
@@ -277,36 +276,37 @@ void adminMenu(vector<string> &cardNumbers,
             for (int i = 0; i < NUM_DENOMINATIONS; i++)
             {
                 totalCash += denominations[i] * billCount[i];
-                cout << "PHP " << denominations[i] << ": " << billCount[i] << " bills8" << endl;
+                cout << BOLD << CYAN << "PHP " << denominations[i] << ": " << billCount[i] << " bills" << RESET << endl;
             }
-            cout << "Total cash available: PHP " << totalCash << endl;
+            cout << BOLD << CYAN << "Total cash available: PHP " << totalCash << RESET << endl;
             break;
         }
         break;
         case 2:
-            // Refill cash
+        {
+            refillCash(denominations, billCount);
             break;
+        }
+
+        break;
         case 3:
         {
-            string card;
-            string pin;
+            string card, pin, bank, type;
             double bal;
-            string bank;
-            string type;
 
-            cout << "Card: ";
+            cout << BOLD << CYAN << "Card: " << RESET;
             cin >> card;
 
-            cout << "PIN: ";
+            cout << BOLD << CYAN << "PIN: " << RESET;
             cin >> pin;
 
-            cout << "Initial Balance: ";
+            cout << BOLD << CYAN << "Initial Balance: " << RESET;
             cin >> bal;
 
-            cout << "Bank(BDO, BPI, Metrobank, Security Bank): ";
+            cout << BOLD << CYAN << "Bank (BDO, BPI, Metrobank, Security Bank): " << RESET;
             cin >> bank;
 
-            cout << "Type(Local/International): ";
+            cout << BOLD << CYAN << "Type (Local/International): " << RESET;
             cin >> type;
 
             cardNumbers.push_back(card);
@@ -320,16 +320,14 @@ void adminMenu(vector<string> &cardNumbers,
         break;
         case 4:
         {
-            for (int i = 0; i < cardNumbers.size(); i++)
-            {
-                cout << i << " " << cardNumbers[i] << " Balance: " << balances[i] << endl;
-            }
+            viewAccounts(cardNumbers, balances);
         }
         break;
         case 5:
         {
+            viewAccounts(cardNumbers, balances);
             int index;
-            cout << "Enter index to delete: ";
+            cout << BOLD << YELLOW << "Enter index to delete: " << RESET;
             cin >> index;
 
             cardNumbers.erase(cardNumbers.begin() + index);
@@ -337,22 +335,87 @@ void adminMenu(vector<string> &cardNumbers,
             balances.erase(balances.begin() + index);
             userBanks.erase(userBanks.begin() + index);
             accountTypes.erase(accountTypes.begin() + index);
+
+            cout << BOLD << RED << "Index: " << index << " Account deleted! \n"
+                 << RESET;
         }
-            cout << "Account deleted! \n";
-            break;
-        case 6:
-            // Change admin Passcode
-            break;
+        break;
+        case 6: // veryyyyy buggyyy, it's still not updating in main, idk what's happening yet
+        {
+            viewAccounts(cardNumbers, balances);
+            int index;
+            cout << BOLD << YELLOW << "Enter index to reset PIN: " << RESET;
+            cin >> index;
+
+            string newPIN;
+            cout << BOLD << CYAN << "Enter new PIN: " << RESET;
+            cin >> newPIN;
+
+            encodedPINs[index] = newPIN;
+            cout << BOLD << CYAN << "PIN reset successful!\n"
+                 << RESET;
+        }
+        break;
         case 7:
+        {
+            string currentPasscode;
+            cout << BOLD << CYAN << "Enter current passcode: " << RESET;
+            cin >> currentPasscode;
+            if (currentPasscode == adminPasscode)
+            {
+                string newPasscode;
+                cout << BOLD << CYAN << "Enter new passcode: " << RESET;
+                cin >> newPasscode;
+                adminPasscode = newPasscode;
+                cout << BOLD << GREEN << "Admin passcode updated successfully!\n"
+                     << RESET;
+            }
+        }
+        break;
+        case 8:
             // List of all admin users
             break;
-        case 8:
+        case 9:
             // Exit
-            cout << "Exiting Admin Menu..." << endl;
+            cout << BOLD << CYAN << "Exiting Admin Menu..." << RESET << endl;
+
             break;
         default:
-            cout << "Invalid input.\n";
+            cout << BOLD << CYAN << "Invalid input.\n"
+                 << RESET;
         }
 
-    } while (choiceAdmin != 8);
+    } while (choiceAdmin != 9);
+}
+// Henry === I can just add refill cash func inside the case statement. This is just tp make it cleaner idk
+void refillCash(int denom[], int billCount[])
+{
+    time_t now = time(0);
+    tm *localTime = localtime(&now);
+
+    // Check if current time is between 8:00 and 8:15
+    if (localTime->tm_hour == 8 && localTime->tm_min <= 15)
+    {
+        // Refill bills
+        int refillAmount;
+        for (int i = 0; i < NUM_DENOMINATIONS; i++)
+        {
+            cout << BOLD << CYAN << "Enter number of PHP " << denom[i] << " bills to add: " << RESET;
+            cin >> refillAmount;
+            billCount[i] += refillAmount;
+        }
+        cout << BOLD << CYAN << "Refill successful." << RESET << endl;
+    }
+    else
+    {
+        cout << BOLD << RED << "Refill allowed only from 8:00 AM to 8:15 AM." << RESET << endl;
+    }
+}
+
+void viewAccounts(vector<string> &cardNumbers, vector<double> &balances)
+{
+    for (int i = 0; i < cardNumbers.size(); i++)
+    {
+        cout << BOLD << CYAN << i << " " << cardNumbers[i] << " Balance: " << balances[i] << RESET << endl;
+    }
 }
