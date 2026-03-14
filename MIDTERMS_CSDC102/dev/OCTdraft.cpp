@@ -5,6 +5,15 @@
 using namespace std;
 
 //--------------------------------------------------------------------Main functions
+const int NUM_BANKS = 4;
+string bankNames[NUM_BANKS] = {"BDO", "BPI", "Metrobank", "Security Bank"};
+double localFees[NUM_BANKS] = {25, 20, 30, 15};
+double intlFees[NUM_BANKS] = {150, 125, 200, 100};
+double dailyLimits[NUM_BANKS] = {50000, 75000, 100000, 60000};
+
+const int NUM_DENOMINATIONS = 3;
+int denominations[NUM_DENOMINATIONS] = {100, 500, 1000};
+int billCount[NUM_DENOMINATIONS] = {500, 500, 500}; // Current count of each
 
 int login(string &adminPasscode)
 {
@@ -16,7 +25,7 @@ int login(string &adminPasscode)
 
 	if (roleChoice == 1)
 	{
-        return 1;
+		return 1;
 	}
 
 	else if (roleChoice == 2)
@@ -77,24 +86,24 @@ void displayDateTime()
 	tm *timeinfo = localtime(&now);
 
 	cout << "Date: " << (timeinfo->tm_mon + 1) << "/"
-		 << timeinfo->tm_mday << "/"
-		 << (timeinfo->tm_year + 1900);
+	     << timeinfo->tm_mday << "/"
+	     << (timeinfo->tm_year + 1900);
 	cout << " Time: " << timeinfo->tm_hour << ":"
-		 << timeinfo->tm_min << endl;
+	     << timeinfo->tm_min << endl;
 }
 
 // Display helper (const reference - read-only)
 void displayMenu(const vector<string> &bankNames,
-				 const vector<double> &localFees) {
+                 const vector<double> &localFees) {
 
 };
 
 void clientMenu(vector<string> &cardNumbers,
-				vector<double> &balances,
-				vector<string> &encodedPINs,
-				vector<string> &userBanks,
-				vector<string> &accountTypes
-				/*, ... other vectors if needed */)
+                vector<double> &balances,
+                vector<string> &encodedPINs,
+                vector<string> &userBanks,
+                vector<string> &accountTypes
+                /*, ... other vectors if needed */)
 {
 	string cardNum_user;
 	cout << "Enter Card Number: ";
@@ -112,77 +121,120 @@ void clientMenu(vector<string> &cardNumbers,
 			if (userPin == encodedPINs[i])
 			{
 				clearScreen();
-				
+
 				cout << "WELCOME!\n";
 				cout << "\nYour card has been identified as:\n";
 				cout << "Bank: " << userBanks[i] << endl;
 				cout << "Account Type: " << accountTypes[i] << endl;
 				cout << "\nTransaction fees may apply depending on your account type.\n";
 				cout << "Please proceed.\n";
-				
+
 				int accountIndex = i;
 				int choiceUser;
 				char userDecision;
+
+				do
+				{
+					cout << "\n==== CLIENT MENU ====" << endl;
+					cout << "1. Check Balance" << endl;
+					cout << "2. Withdraw Cash" << endl;
+					cout << "3. Transfer Cash" << endl;
+					cout << "4. View Transaction History" << endl;
+					cout << "5. Change PIN" << endl;
+					cout << "6. Exit" << endl;
+					//-----
+					cout << "\nEnter your choice: ";
+					cin >> choiceUser;
+
+					clearScreen();
+
+					if (choiceUser == 1)
+					{
+						// Display balance
+						displayDateTime();
+						cout << "Current Balance: Php " << balances[accountIndex] << endl;
+					}
+					else if (choiceUser == 2)
+					{
+						// Withdraw cash
+						int withdrawAmount;
+						cout << "Enter amount: ";
+						cin >> withdrawAmount;
+						
+						// Deduct appropriate fee
+						if(accountTypes[accountIndex] == "Local")
+						{
+						    for(int i = 0; i < NUM_BANKS; i++)
+						    {
+    							if(userBanks[accountIndex] == bankNames[i])
+    							{
+    								balances[accountIndex] -= localFees[i];
+    							}
+						    }
+						}
+						else
+						{
+                            for(int i = 0; i < NUM_BANKS; i++)
+						    {
+    							if(userBanks[accountIndex] == bankNames[i])
+    							{
+    								balances[accountIndex] -= intlFees[i];
+    							}
+						    }
+						}
+						balances[accountIndex] -= withdrawAmount;
+					}
+					
+					else if (choiceUser == 3)
+					{
+						//NOT YET DONE
+						// Transfer cash
+						string recipientCard;
+						cout << "Enter recipient card number: ";
+						cin >> recipientCard;
 				
-            	do
-            	{
-            		cout << "\n==== CLIENT MENU ====" << endl;
-            		cout << "1. Check Balance" << endl;
-            		cout << "2. Withdraw Cash" << endl;
-            		cout << "3. Deposit Cash" << endl;
-            		cout << "4. Transfer Funds" << endl;
-            		cout << "5. View Transaction History" << endl;
-            		cout << "6. Exit" << endl;
-            		//-----
-            		cout << "\nEnter your choice: ";
-            		cin >> choiceUser;
-            		
-            		clearScreen();
-            		
-            		if (choiceUser == 1)
-            		{
-            			// Display balance
-            			displayDateTime();
-            			cout << "Current Balance: Php " << balances[accountIndex] << endl;
-            		}
-            		else if (choiceUser == 2)
-            		{
-						//KULANG PA TO
-            			// Withdraw cash
-            			int withdrawAmount;
-            			cout << "Enter amount: ";
-            			cin >> withdrawAmount;
-            			
-            			balances[accountIndex] -= withdrawAmount; // update balance
-            		}
-            		else if (choiceUser == 3)
-            		{
-            			// Deposit cash
-            		}
-            		else if (choiceUser == 4)
-            		{
-            			// Transfer funds
-            		}
-            		else if (choiceUser == 5)
-            		{
-            			// View transaction history
-            		}
-            		else if (choiceUser == 6)
-            		{
-            		    break;
-            		}
-            		
-            		else
-            		{
-            			cout << "Invalid input.\n";
-            		}
-            		
-            		cout << "\nWould you like to perform another transaction? (Y/N): ";
-            		cin >> userDecision;
-            		
-            		clearScreen();
-            
-            	} while (userDecision == 'Y' || userDecision == 'y');
+					}
+					else if (choiceUser == 4)
+					{
+						// View transaction history
+					}
+					else if (choiceUser == 5)
+					{
+						// Change PIN
+						string verifPIN;
+						cout << "Re-enter PIN: ";
+						cin >> verifPIN;
+						
+						if(verifPIN == encodedPINs[accountIndex]) 
+						{
+						    //INCOMPLETE: NO ENCODING AND VALIDATE YET
+						    clearScreen();
+						    string newPIN;
+						    cout << "Enter new PIN: ";
+						    cin >> newPIN;
+						    encodedPINs[accountIndex] = newPIN; 
+						}
+						else 
+						{
+						    cout << "Incorrect PIN. Please try again.";
+						}
+					}
+					else if (choiceUser == 6)
+					{
+						break;
+					}
+
+					else
+					{
+						cout << "Invalid input.\n";
+					}
+
+					cout << "\nWould you like to perform another transaction? (Y/N): ";
+					cin >> userDecision;
+
+					clearScreen();
+
+				} while (userDecision == 'Y' || userDecision == 'y');
 			}
 
 			else
@@ -191,22 +243,22 @@ void clientMenu(vector<string> &cardNumbers,
 				cout << endl;
 			}
 		}
-		
+
 		else
 		{
-            break;
+			break;
 		}
 	}
-    
+
 
 };
 
 void adminMenu(vector<string> &cardNumbers,
-			   vector<double> &balances,
-			   vector<string> &encodedPINs,
-			   string &adminPasscode,
-			   vector<string> &userBanks,
-			   vector<string> &accountTypes)
+               vector<double> &balances,
+               vector<string> &encodedPINs,
+               string &adminPasscode,
+               vector<string> &userBanks,
+               vector<string> &accountTypes)
 {
 	int choiceAdmin;
 	cout << "Admin Menu: " << endl;
@@ -246,9 +298,9 @@ void adminMenu(vector<string> &cardNumbers,
 			{
 				// this is just for checking purposes to see if the new account is added to the vectors
 				cout << "Card: " << cardNumbers[i]
-					 << ", Bank: " << userBanks[i]
-					 << ", Type: " << accountTypes[i]
-					 << ", Balance: " << balances[i] << endl;
+				     << ", Bank: " << userBanks[i]
+				     << ", Type: " << accountTypes[i]
+				     << ", Balance: " << balances[i] << endl;
 			}
 			// View all accounts and balances
 			// IT'S GONNA LOOP INFINITELY BECAUSE NOTHING IS INSIDE THE IF STATEMENT YET!!!!!!!!!!
@@ -290,21 +342,11 @@ void adminMenu(vector<string> &cardNumbers,
 bool validateCardNumber(string card);
 double calculateFeeRecursive(double amount, int iterations);
 void logTransaction(const string &cardNum,
-					const string &type,
-					double amount);
+                    const string &type,
+                    double amount);
 
 int main()
 {
-	const int NUM_BANKS = 4;
-	string bankNames[NUM_BANKS] = {"BDO", "BPI", "Metrobank", "Security Bank"};
-	double localFees[NUM_BANKS] = {25, 20, 30, 15};
-	double intlFees[NUM_BANKS] = {150, 125, 200, 100};
-	double dailyLimits[NUM_BANKS] = {50000, 75000, 100000, 60000};
-
-	const int NUM_DENOMINATIONS = 3;
-	int denominations[NUM_DENOMINATIONS] = {100, 500, 1000};
-	int billCount[NUM_DENOMINATIONS] = {500, 500, 500}; // Current count of each
-
 	vector<string> cardNumbers = {"12345678910", "10987654321", "11111111111"};
 	// Parallel vectors - keep in sync!
 
