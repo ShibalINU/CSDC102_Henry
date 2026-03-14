@@ -99,7 +99,7 @@ int login(string &adminPasscode, vector<string> &cardNumbers, vector<string> &en
     cout << "Enter your choice: ";
     cin >> roleChoice;
 
-    if (roleChoice == 1)
+    if (roleChoice == 1) //ciphered
     {
         string cardNum_user;
         cout << BOLD << YELLOW << "Enter Card Number: " << RESET << endl;
@@ -127,7 +127,7 @@ int login(string &adminPasscode, vector<string> &cardNumbers, vector<string> &en
         cout << "Card not found.\n";
         return 0;
     }
-    else if (roleChoice == 2) // admin attempts
+    else if (roleChoice == 2) // admin attempts // wait lang di ko maisip pano 
     {
         for (int attempts = 0; attempts < 3; ++attempts)
         {
