@@ -5,6 +5,16 @@
 using namespace std;
 
 //--------------------------------------------------------------------Main functions
+// Color codes
+const string RESET = "\033[0m";    // Reset to default
+const string RED = "\033[31m";     // Red text
+const string GREEN = "\033[32m";   // Green text
+const string YELLOW = "\033[33m";  // Yellow text
+const string BLUE = "\033[34m";    // Blue text
+const string MAGENTA = "\033[35m"; // Magenta text
+const string CYAN = "\033[36m";    // Cyan text
+const string WHITE = "\033[37m";   // White text
+const string BOLD = "\033[1m";     // Bold text
 
 const int NUM_BANKS = 4;
 const int NUM_DENOMINATIONS = 3;
@@ -69,6 +79,7 @@ int main()
         }
     }
 
+    system("pause");
     return 0;
 }
 
@@ -77,8 +88,13 @@ int main()
 int login(string &adminPasscode, vector<string> &cardNumbers, vector<string> &encodedPINs)
 {
     int roleChoice;
-    cout << "==========ATM System!==========" << endl;
-    cout << "\n[1] Client   [2] Admin   [3] Shutdown" << endl;
+    cout << BOLD << CYAN << "====================================================" << endl;
+    cout << "        K H G :  B A N K I N G  S Y S T E M           " << endl;
+    cout << "====================================================" << RESET << endl;
+    cout << BOLD << BLUE << "Supported Banks: BDO, BPI, Metrobank, Security Bank" << endl;
+    cout << "====================================================" << RESET << endl
+         << endl;
+    cout << BOLD << GREEN << "\n[1] Client   [2] Admin   [3] Shutdown" << RESET << endl;
     cout << "Enter your choice: ";
     cin >> roleChoice;
 
@@ -129,10 +145,10 @@ int login(string &adminPasscode, vector<string> &cardNumbers, vector<string> &en
     }
     else if (roleChoice == 3)
     {
-        return 3; // Shutdown
+        return 3;
     }
 
-    return 0; // fallback
+    return 0;
 }
 
 //--------------------------------------------------------------------Security functions
@@ -309,8 +325,7 @@ void adminMenu(vector<string> &cardNumbers,
                 cout << i << " " << cardNumbers[i] << " Balance: " << balances[i] << endl;
             }
         }
-            viewAccounts(cardNumbers, balances);
-            break;
+        break;
         case 5:
         {
             int index;
