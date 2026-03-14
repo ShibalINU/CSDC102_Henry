@@ -100,10 +100,12 @@ main()
       ├── viewCash()
       ├── refillCash()
       ├── createAccount()
-      ├── viewAccounts()
-      ├── deleteAccount()
+      ├── viewAccounts and balances()
+      ├── delete/deactivateAccount()
       ├── resetPIN()
-      └── changeAdminPasscode()
+      ├── changeAdminPasscode()
+      └── List of all admin users()
+
 
 
 ASCII CONVERSION
