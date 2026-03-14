@@ -100,31 +100,7 @@ int login(string &adminPasscode, vector<string> &cardNumbers, vector<string> &en
 
     if (roleChoice == 1)
     {
-        string cardNum_user;
-        cout << "Enter Card Number: ";
-        cin >> cardNum_user;
-
-        for (int i = 0; i < cardNumbers.size(); i++)
-        {
-            if (cardNum_user == cardNumbers[i])
-            {
-                string userPin;
-                cout << "Enter PIN: ";
-                cin >> userPin;
-
-                if (userPin == encodedPINs[i])
-                {
-                    return 1; // Client role
-                }
-                else
-                {
-                    cout << "Incorrect PIN. Please try again.\n";
-                    return 0;
-                }
-            }
-        }
-        cout << "Card not found.\n";
-        return 0;
+        return 1;
     }
     else if (roleChoice == 2)
     {

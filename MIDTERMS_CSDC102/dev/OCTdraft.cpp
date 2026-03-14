@@ -71,7 +71,21 @@ string decodeString(string encoded)
 	return decoded;
 };
 
-bool validateCardNumber(string card)
+// Version 1: Custom amount
+bool withdraw(vector<double>& balances, int accountIndex, double withdrawAmount) 
+{
+    // Process withdrawal
+    return true;
+}
+
+// Version 2: Preset amount
+bool withdraw(vector<double>& balances, int accountIndex, string presetAmount[]) 
+{
+    double amount = stod(preset);  // Convert string to double
+    return withdraw(balances, account, amount);  // Call Version 1
+}
+
+bool validateCardNumber(string recipientCard)
 {
 	// Implementation for validating card number
 	return false;
@@ -175,7 +189,7 @@ void clientMenu(vector<string> &cardNumbers,
 					else if (choiceUser == 2)
 					{
 						// Withdraw cash
-						int withdrawAmount;
+						double withdrawAmount;
 						cout << "Enter amount: ";
 						cin >> withdrawAmount;
 
