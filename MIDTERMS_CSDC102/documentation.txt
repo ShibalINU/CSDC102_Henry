@@ -102,7 +102,8 @@ main()
       ├── createAccount(+)
       ├── viewAccounts and balances(+)
       ├── delete/deactivateAccount(+)
-      ├── reset account passwords(+) //No Ceasar Chipher
+      ├── reset account
+       passwords(+) //No Ceasar Chipher
       ├── changeAdminPasscode(+) //No Ceasar Cipher
       └── List of all admin users() // Ihave no idea how this acc system works
 
@@ -125,5 +126,7 @@ const string CYAN    = "3\033[36m";  // Cyan text
 const string WHITE   = "\033[37m";  // White text
 const string BOLD    = "\033[1m";
 https://stackoverflow.com/questions/7414983/how-can-i-use-ansi-escape-codes-for-outputting-colored-text-in-c-and-c
+https://gist.github.com/upsilun/4a85ab3bc7cf92e8acde720c6eb7ddea
+
 
 
