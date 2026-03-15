@@ -79,7 +79,7 @@ void clearScreen();
 bool validateCardNumber(vector<string> &cardNumbers, string userCard, int &accountIndex);
 bool withdraw(vector<double> &balances, int accountIndex, double withdrawAmount);
 bool withdraw(vector<double> &balances, int accountIndex, string presetAmount);
-double calculateFeeRecursive(double withdrawAmount, int iterations);
+double calculateFeeRecursive(double withdrawAmount, string currentUserBank, string userAccountType, int iterations);
 void calculateBills(double withdrawAmount, int &bills1000, int &bills500, int &bills100);
 void refillCash(int denom[], int billCount[]);
 void viewAccounts(vector<string> &cardNumbers, vector<double> &balances);
@@ -235,6 +235,7 @@ void clientMenu(vector<string> &cardNumbers,
 
                 displayDateTime();
                 showAccountDetails(cardNumbers, userBanks, accountTypes, balances, i);
+                cout << BOLD << ITALIC << FAINT << YELLOW << "\nTransaction fees may apply depending on your account type " << RESET << ITALIC_OFF << endl;
                 int accountIndex = i;
                 int choiceUser;
                 char userDecision;
@@ -351,27 +352,12 @@ void clientMenu(vector<string> &cardNumbers,
                             return;
                         }
 
-                        // Deduct appropriate fee
-                        if (accountTypes[accountIndex] == "Local")
-                        {
-                            for (int i = 0; i < NUM_BANKS; i++)
-                            {
-                                if (userBanks[accountIndex] == bankNames[i])
-                                {
-                                    balances[accountIndex] -= localFees[i];
-                                }
-                            }
-                        }
-                        else
-                        {
-                            for (int i = 0; i < NUM_BANKS; i++)
-                            {
-                                if (userBanks[accountIndex] == bankNames[i])
-                                {
-                                    balances[accountIndex] -= intlFees[i];
-                                }
-                            }
-                        }
+                        double deductedFee = calculateFeeRecursive(withdrawAmount, userBanks[accountIndex], accountTypes[accountIndex], 0);
+                        double updatedBalance = balances[accountIndex] - deductedFee;
+                        balances[accountIndex] = updatedBalance;
+                        cout << BOLD << YELLOW << "Transaction fee deducted: Php " << deductedFee << RESET << endl;
+                        cout << BOLD << CYAN << "Updated Balance: Php " << balances[accountIndex] << RESET << endl;
+                        break;
 
                         // Calculate change in optimal bills
                         calculateBills(withdrawAmount, bills1000, bills500, bills100);
@@ -433,6 +419,29 @@ void showAccountDetails(vector<string> &cardNumbers, vector<string> &userBanks, 
     cout << "Account Type: " << accountTypes[i] << endl;
     cout << "Balance: " << balances[i] << RESET << UNDERLINE_OFF << endl;
 }
+
+double calculateFeeRecursive(double withdrawAmount, string currentUserBank, string userAccountType, int iterations)
+{
+    // Base case: end of bank list
+    if (iterations == NUM_BANKS)
+    {
+        return withdrawAmount;
+    }
+    // If bank matches
+    if (currentUserBank == bankNames[iterations])
+    {
+        if (userAccountType == "Local")
+        {
+            return withdrawAmount - localFees[iterations];
+        }
+        else
+        {
+            return withdrawAmount - intlFees[iterations];
+        }
+    }
+    // Recursive call: to the next bank
+    return calculateFeeRecursive(withdrawAmount, currentUserBank, userAccountType, iterations + 1);
+};
 
 void calculateBills(double withdrawAmount, int &bills1000, int &bills500, int &bills100)
 {
