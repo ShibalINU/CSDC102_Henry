@@ -49,10 +49,17 @@ string decodeString(string encoded);
 void displayDateTime();
 void clearScreen();
 bool validateCardNumber(vector<string> &cardNumbers, string userCard, int &accountIndex);
+<<<<<<< Updated upstream
 bool withdraw(vector<double> &balances, int accountIndex, double withdrawAmount);
 bool withdraw(vector<double> &balances, int accountIndex, string presetAmount);
 double calculateFeeRecursive(double withdrawAmount, int iterations);
 void calculateBills(double withdrawAmount, int &bills1000, int &bills500, int &bills100);
+=======
+bool withdraw(vector<double>& balances, int accountIndex, double withdrawAmount);
+bool withdraw(vector<double>& balances, int accountIndex, string presetAmount);
+double calculateFeeRecursive(double withdrawAmount, string currentUserBank, string userAccountType, int iterations);
+void calculateBills(double withdrawAmount, int& bills1000, int& bills500, int& bills100);
+>>>>>>> Stashed changes
 void refillCash(int denom[], int billCount[]);
 void viewAccounts(vector<string> &cardNumbers, vector<double> &balances);
 
@@ -190,8 +197,22 @@ void clientMenu(vector<string> &cardNumbers,
         cout << BOLD << YELLOW << "Enter PIN: " << RESET << endl;
         cin >> userPIN;
 
+<<<<<<< Updated upstream
         if (encodedPINs[accountIndex] == userPIN)
         {
+=======
+        if(encodedPINs[accountIndex] == userPIN)
+        {    
+            string currentUserBank = userBanks[accountIndex];
+            string userAccountType = accountTypes[accountIndex];
+            cout << "WELCOME!\n";
+            cout << "\nYour card has been identified as:\n";
+            cout << "Bank: " << currentUserBank << endl;
+            cout << "Account Type: " << userAccountType << endl;
+            cout << "\nTransaction fees may apply depending on your account type.\n";
+            cout << "Please proceed.\n";             
+
+>>>>>>> Stashed changes
             int choiceUser;
             do
             {
@@ -267,6 +288,7 @@ void clientMenu(vector<string> &cardNumbers,
                         cin >> withdrawAmount;
                         withdraw(balances, accountIndex, withdrawAmount);
                     }
+<<<<<<< Updated upstream
 
                     // Deduct appropriate fee
                     if (accountTypes[accountIndex] == "Local")
@@ -290,6 +312,12 @@ void clientMenu(vector<string> &cardNumbers,
                         }
                     }
 
+=======
+                    
+                    double deductedFee = calculateFeeRecursive(withdrawAmount, currentUserBank, userAccountType, 0); // Deduct appropriate fee for withdrawal
+                    balances[accountIndex] = deductedFee; // update user balance
+                    
+>>>>>>> Stashed changes
                     // Calculate change in optimal bills
                     calculateBills(withdrawAmount, bills1000, bills500, bills100);
                     // Update Bill Count after withdrawal
@@ -306,7 +334,7 @@ void clientMenu(vector<string> &cardNumbers,
                     // View Transaction History
                     break;
                 case 5:
-                    // View transaction history
+                    // Change PIN
                     break;
                 case 6:
                     cout << "Exiting Client Menu..." << endl;
@@ -366,12 +394,34 @@ bool withdraw(vector<double> &balances, int accountIndex, string presetAmount)
     return withdraw(balances, accountIndex, withdrawAmount); // Call Version 1
 }
 
-double calculateFeeRecursive(double withdrawAmount, int iterations)
+double calculateFeeRecursive(double withdrawAmount, string currentUserBank, string userAccountType, int iterations)
 {
+<<<<<<< Updated upstream
     // MAN IDK
 
     // Implementation for calculating fee recursively
     return 0.0;
+=======
+    // Base case: end of bank list
+    if(iterations == NUM_BANKS)
+    {
+        return withdrawAmount;
+    }
+    // If bank matches
+    if(currentUserBank == bankNames[iterations])
+    {
+        if(userAccountType == "Local")
+        {
+            return withdrawAmount - localFees[iterations];
+        }
+        else
+        {
+            return withdrawAmount - intlFees[iterations];
+        }
+    }
+    // Recursive call: to the next bank 
+    return calculateFeeRecursive(withdrawAmount, currentUserBank, userAccountType, iterations + 1);
+>>>>>>> Stashed changes
 };
 
 // Recursive function to calculate number of bills for a given amount
