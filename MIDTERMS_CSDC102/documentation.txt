@@ -1,8 +1,12 @@
 FULL PROJECT DOCUMENTATION:
 ->>>https://docs.google.com/document/d/1ENGLLbGHnTkA3-H2BQyqdltZQSCkXoIewn1lmSvWaH4/edit?tab=t.0<<<-
 
-//Banks and their description
+Group members:
+Ellyka Gail L. Pagunsan
+Katrize Jilliane E. Octeza
+Henry James H. Ros
 
+//Banks and their description
 Bank: BDO
 Local Fee: 25
 International Fee: 150
@@ -23,7 +27,7 @@ Local Fee: 15
 International Fee: 100
 Daily Limit: 60000
 
-
+//Flow of 
 Login();
 Display
     -user
