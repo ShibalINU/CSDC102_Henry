@@ -2,7 +2,7 @@
 
 int main()
 {
-    system("start cmd /k dev.exe");
+    system("start cmd /k katttupd.exe");
 
     system("pause");
     return 0;
