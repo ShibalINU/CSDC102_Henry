@@ -195,8 +195,6 @@ void clientMenu(vector<string> &cardNumbers,
             int choiceUser;
             do
             {
-                clearScreen();
-
                 cout << "\n=====CLIENT MENU===== " << endl;
                 cout << "1. Check Balance" << endl;
                 cout << "2. Withdraw Cash" << endl;
@@ -207,8 +205,6 @@ void clientMenu(vector<string> &cardNumbers,
 
                 cout << "\nEnter your choice: ";
                 cin >> choiceUser;
-
-                clearScreen();
 
                 switch (choiceUser)
                 {
