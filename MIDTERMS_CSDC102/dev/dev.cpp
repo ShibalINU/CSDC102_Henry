@@ -79,7 +79,7 @@ void clearScreen();
 bool validateCardNumber(vector<string> &cardNumbers, string userCard, int &accountIndex);
 bool withdraw(vector<double> &balances, int accountIndex, double withdrawAmount);
 bool withdraw(vector<double> &balances, int accountIndex, string presetAmount);
-double calculateFeeRecursive(double withdrawAmount, string currentUserBank, string userAccountType, int iterations);
+double calculateFeeRecursive(vector<double> &balances, string currentUserBank, string userAccountType, int accountIndex, int iterations);
 void calculateBills(double withdrawAmount, int &bills1000, int &bills500, int &bills100);
 void refillCash(int denom[], int billCount[]);
 void viewAccounts(vector<string> &cardNumbers, vector<double> &balances);
@@ -216,200 +216,204 @@ void clientMenu(vector<string> &cardNumbers,
                 vector<string> &userBanks,
                 vector<string> &accountTypes)
 {
-    string cardNum_user;
+    string userCard;
     cout << BOLD << BLUE << "Enter Card Number: " << RESET;
-    cin >> cardNum_user;
+    cin >> userCard;
+    int accountIndex;
 
-    for (int i = 0; i < cardNumbers.size(); i++)
+    if (validateCardNumber(cardNumbers, userCard, accountIndex))
     {
+        string userPIN;
+        cout << BOLD << BLUE << "Enter PIN: " << RESET;
+        cin >> userPIN;
 
-        if (cardNum_user == cardNumbers[i])
+        if (userPIN == encodedPINs[accountIndex])
         {
-            string userPin;
-            cout << BOLD << BLUE << "Enter PIN: " << RESET;
-            cin >> userPin;
+            displayDateTime();
+            showAccountDetails(cardNumbers, userBanks, accountTypes, balances, accountIndex);
+            cout << BOLD << ITALIC << FAINT << YELLOW << "\nTransaction fees may apply depending on your account type " << RESET << ITALIC_OFF << endl;
+            int choiceUser;
 
-            if (userPin == encodedPINs[i])
+            do
             {
+                cout << BOLD << CYAN << "======= CLIENT MENU ========" << RESET << endl;
+                cout << BOLD << ITALIC << "1. Check Balance" << endl;
+                cout << "2. Withdraw Cash" << endl;
+                cout << "3. Transfer Cash" << endl;
+                cout << "4. View Transaction History" << endl;
+                cout << "5. Change PIN" << endl;
+                cout << "6. Exit" << ITALIC_OFF << endl;
+                //-----
+                cout << BOLD << BLUE << "\nEnter your choice: " << RESET;
+                cin >> choiceUser;
+
                 clearScreen();
 
-                displayDateTime();
-                showAccountDetails(cardNumbers, userBanks, accountTypes, balances, i);
-                cout << BOLD << ITALIC << FAINT << YELLOW << "\nTransaction fees may apply depending on your account type " << RESET << ITALIC_OFF << endl;
-                int accountIndex = i;
-                int choiceUser;
-                char userDecision;
-
-                do
+                switch (choiceUser)
                 {
-                    cout << BOLD << CYAN << "======= CLIENT MENU ========" << RESET << endl;
-                    cout << BOLD << ITALIC << "1. Check Balance" << endl;
-                    cout << "2. Withdraw Cash" << endl;
-                    cout << "3. Transfer Cash" << endl;
-                    cout << "4. View Transaction History" << endl;
-                    cout << "5. Change PIN" << endl;
-                    cout << "6. Exit" << ITALIC_OFF << endl;
-                    //-----
-                    cout << BOLD << BLUE << "\nEnter your choice: " << RESET;
-                    cin >> choiceUser;
+                case 1:
+                {
+                    displayDateTime();
+                    showAccountDetails(cardNumbers, userBanks, accountTypes, balances, accountIndex);
+                    cout << BOLD << CYAN << "Current Balance: Php " << balances[accountIndex] << endl;
+                    break;
+                }
+                case 2:
+                {
+
+                    displayDateTime();
+                    showAccountDetails(cardNumbers, userBanks, accountTypes, balances, accountIndex);
+                    // Withdraw cash
+                    int withdrawChoice;
+                    cout << BOLD << CYAN << "Select Withdrawal Option:\n"
+                         << RESET;
+                    cout << ITALIC << "1. Predefined Amount (500, 1000, 2000, 5000, 10000)\n";
+                    cout << "2. Custom Amount\n";
+                    cout << "3. Exit\n"
+                         << RESET;
+                    cout << BOLD << BLUE << "Enter choice: " << RESET;
+                    cin >> withdrawChoice;
 
                     clearScreen();
+                    double withdrawAmount;
+                    int bills1000 = 0;
+                    int bills500 = 0;
+                    int bills100 = 0;
 
-                    switch (choiceUser)
+                    if (withdrawChoice == 1)
                     {
-                    case 1:
-                    {
-                        displayDateTime();
-                        showAccountDetails(cardNumbers, userBanks, accountTypes, balances, accountIndex);
-                        cout << BOLD << CYAN << "Current Balance: Php " << balances[accountIndex] << endl;
-                        break;
-                    }
-                    case 2:
-                    {
+                        int presetChoice;
+                        cout << "Select Amount:\n";
+                        cout << "1. Php 500\n";
+                        cout << "2. Php 1000\n";
+                        cout << "3. Php 2000\n";
+                        cout << "4. Php 5000\n";
+                        cout << "5. Php 10000\n";
+                        cout << "Enter Choice: ";
+                        cin >> presetChoice;
 
-                        displayDateTime();
-                        showAccountDetails(cardNumbers, userBanks, accountTypes, balances, accountIndex);
-                        // Withdraw cash
-                        int withdrawChoice;
-                        cout << BOLD << CYAN << "Select Withdrawal Option:\n"
-                             << RESET;
-                        cout << ITALIC << "1. Predefined Amount (500, 1000, 2000, 5000, 10000)\n";
-                        cout << "2. Custom Amount\n";
-                        cout << "3. Exit\n"
-                             << RESET;
-                        cout << BOLD << BLUE << "Enter choice: " << RESET;
-                        cin >> withdrawChoice;
-
-                        clearScreen();
-                        double withdrawAmount;
-                        int bills1000 = 0;
-                        int bills500 = 0;
-                        int bills100 = 0;
-
-                        if (withdrawChoice == 1)
+                        string presetAmount;
+                        if (presetChoice == 1)
                         {
-                            int presetChoice;
-                            cout << "Select Amount:\n";
-                            cout << "1. Php 500\n";
-                            cout << "2. Php 1000\n";
-                            cout << "3. Php 2000\n";
-                            cout << "4. Php 5000\n";
-                            cout << "5. Php 10000\n";
-                            cout << "Enter Choice: ";
-                            cin >> presetChoice;
-
-                            string presetAmount;
-                            if (presetChoice == 1)
-                            {
-                                presetAmount = "500";
-                                cout << BOLD << YELLOW << "Preset amount selected: Php " << presetAmount << RESET << endl;
-                                cout << BOLD << GREEN << "Withdrawal Successful! " << RESET << endl;
-                            }
-
-                            else if (presetChoice == 2)
-                            {
-                                presetAmount = "1000";
-                                cout << BOLD << YELLOW << "Preset amount selected: Php " << presetAmount << RESET << endl;
-                                cout << BOLD << GREEN << "Withdrawal Successful! " << RESET << endl;
-                            }
-
-                            else if (presetChoice == 3)
-                            {
-                                presetAmount = "2000";
-                                cout << BOLD << YELLOW << "Preset amount selected: Php " << presetAmount << RESET << endl;
-                                cout << BOLD << GREEN << "Withdrawal Successful! " << RESET << endl;
-                            }
-                            else if (presetChoice == 4)
-                            {
-                                presetAmount = "5000";
-                                cout << BOLD << YELLOW << "Preset amount selected: Php " << presetAmount << RESET << endl;
-                                cout << BOLD << GREEN << "Withdrawal Successful! " << RESET << endl;
-                            }
-                            else if (presetChoice == 5)
-                            {
-                                presetAmount = "10000";
-                                cout << BOLD << YELLOW << "Preset amount selected: Php " << presetAmount << RESET << endl;
-                                cout << BOLD << GREEN << "Withdrawal Successful! " << RESET << endl;
-                            }
-                            else
-                            {
-                                cout << BOLD << RED << "Invalid input.\n"
-                                     << RESET;
-                                return;
-                            }
-                            withdraw(balances, accountIndex, presetAmount);
+                            presetAmount = "500";
+                            cout << BOLD << YELLOW << "Preset amount selected: Php " << presetAmount << RESET << endl;
+                            cout << BOLD << GREEN << "Withdrawal Successful! " << RESET << endl;
                         }
-                        else if (withdrawChoice == 2)
+
+                        else if (presetChoice == 2)
                         {
-                            cout << BOLD << CYAN << "Enter amount to withdraw: " << RESET;
-                            cin >> withdrawAmount;
-                            withdraw(balances, accountIndex, withdrawAmount);
-                            cout << BOLD << YELLOW << "Withdrawal amount: Php " << withdrawAmount << RESET << endl;
+                            presetAmount = "1000";
+                            cout << BOLD << YELLOW << "Preset amount selected: Php " << presetAmount << RESET << endl;
+                            cout << BOLD << GREEN << "Withdrawal Successful! " << RESET << endl;
+                        }
+
+                        else if (presetChoice == 3)
+                        {
+                            presetAmount = "2000";
+                            cout << BOLD << YELLOW << "Preset amount selected: Php " << presetAmount << RESET << endl;
+                            cout << BOLD << GREEN << "Withdrawal Successful! " << RESET << endl;
+                        }
+                        else if (presetChoice == 4)
+                        {
+                            presetAmount = "5000";
+                            cout << BOLD << YELLOW << "Preset amount selected: Php " << presetAmount << RESET << endl;
+                            cout << BOLD << GREEN << "Withdrawal Successful! " << RESET << endl;
+                        }
+                        else if (presetChoice == 5)
+                        {
+                            presetAmount = "10000";
+                            cout << BOLD << YELLOW << "Preset amount selected: Php " << presetAmount << RESET << endl;
                             cout << BOLD << GREEN << "Withdrawal Successful! " << RESET << endl;
                         }
                         else
                         {
+                            cout << BOLD << RED << "Invalid input.\n"
+                                 << RESET;
                             return;
                         }
-
-                        double deductedFee = calculateFeeRecursive(withdrawAmount, userBanks[accountIndex], accountTypes[accountIndex], 0);
-                        double updatedBalance = balances[accountIndex] - deductedFee;
-                        balances[accountIndex] = updatedBalance;
-                        cout << BOLD << YELLOW << "Transaction fee deducted: Php " << deductedFee << RESET << endl;
-                        cout << BOLD << CYAN << "Updated Balance: Php " << balances[accountIndex] << RESET << endl;
-                        break;
-
-                        // Calculate change in optimal bills
-                        calculateBills(withdrawAmount, bills1000, bills500, bills100);
-                        // Update Bill Count after withdrawal
-                        billCount[0] -= bills100;
-                        billCount[1] -= bills500;
-                        billCount[2] -= bills1000;
+                        withdraw(balances, accountIndex, presetAmount);
                     }
+                    else if (withdrawChoice == 2)
+                    {
+                        cout << BOLD << CYAN << "Enter amount to withdraw: " << RESET;
+                        cin >> withdrawAmount;
+                        withdraw(balances, accountIndex, withdrawAmount);
+                        cout << BOLD << YELLOW << "Withdrawal amount: Php " << withdrawAmount << RESET << endl;
+                        cout << BOLD << GREEN << "Withdrawal Successful! " << RESET << endl;
+                    }
+                    else
+                    {
+                        return;
+                    }
+
+                    double balanceAfterDeduction = calculateFeeRecursive(balances, userBanks[accountIndex], accountTypes[accountIndex], accountIndex, 0);
+                    double deductedFee = balances[accountIndex] - balanceAfterDeduction;
+                    balances[accountIndex] = balanceAfterDeduction;
+                    cout << BOLD << YELLOW << "Transaction fee deducted: Php " << deductedFee << RESET << endl;
+                    cout << BOLD << CYAN << "Updated Balance: Php " << balances[accountIndex] << RESET << endl;
+
+                    // Calculate change in optimal bills
+                    calculateBills(withdrawAmount, bills1000, bills500, bills100);
+                    // Update Bill Count after withdrawal
+                    billCount[0] -= bills100;
+                    billCount[1] -= bills500;
+                    billCount[2] -= bills1000;
+                }
+                break;
+                case 3:
+                    // Transfer cash
+                    displayDateTime();
+                    showAccountDetails(cardNumbers, userBanks, accountTypes, balances, accountIndex);
                     break;
-                    case 3:
-                        // Transfer cash
-                        displayDateTime();
-                        showAccountDetails(cardNumbers, userBanks, accountTypes, balances, accountIndex);
-                        break;
-                    case 4:
-                    {
+                case 4:
+                {
 
-                        displayDateTime();
-                        showAccountDetails(cardNumbers, userBanks, accountTypes, balances, accountIndex);
-                        ifstream file("transactions.csv");
-                        string line;
-                        cout << BOLD << CYAN << "\n====== Last Transactions ======\n"
-                             << RESET;
-                        while (getline(file, line))
-                        {
-                            if (line.find(cardNumbers[accountIndex]) != string::npos)
-                                cout << line << endl;
-                        }
-                        file.close();
-                        break;
-                    }
-                    case 5:
+                    displayDateTime();
+                    showAccountDetails(cardNumbers, userBanks, accountTypes, balances, accountIndex);
+                    ifstream file("transactions.csv");
+                    string line;
+                    cout << BOLD << CYAN << "\n====== Last Transactions ======\n"
+                         << RESET;
+                    while (getline(file, line))
                     {
-                        displayDateTime();
+                        if (line.find(cardNumbers[accountIndex]) != string::npos)
+                            cout << line << endl;
+                    }
+                    file.close();
+                    break;
+                }
+                case 5:
+                {
+                    displayDateTime();
 
-                        showAccountDetails(cardNumbers, userBanks, accountTypes, balances, accountIndex);
-                        string newpin;
-                        cout << BOLD << CYAN << "Enter new PIN: " << RESET;
-                        cin >> newpin;
-                        encodedPINs[accountIndex] = newpin;
-                        cout << BOLD << GREEN << "PIN changed successfully!\n"
-                             << RESET;
-                        break;
-                    }
-                    case 6:
-                        cout << BOLD << CYAN << "Exiting safely...\n"
-                             << RESET;
-                        break;
-                    }
-                } while (choiceUser != 6);
-            }
+                    showAccountDetails(cardNumbers, userBanks, accountTypes, balances, accountIndex);
+                    string newpin;
+                    cout << BOLD << CYAN << "Enter new PIN: " << RESET;
+                    cin >> newpin;
+                    encodedPINs[accountIndex] = newpin;
+                    cout << BOLD << GREEN << "PIN changed successfully!\n"
+                         << RESET;
+                    break;
+                }
+                case 6:
+                    cout << BOLD << CYAN << "Exiting safely...\n"
+                         << RESET;
+                    break;
+                }
+            } while (choiceUser != 6);
         }
+        else
+        {
+            cout << BOLD << RED << "Incorrect Passcode. Please Try Again.\n"
+                 << RESET;
+            return;
+        }
+    }
+    else
+    {
+        cout << BOLD << RED << "Card number not found. Please try again.\n"
+             << RESET;
+        return;
     }
 }
 
@@ -420,28 +424,20 @@ void showAccountDetails(vector<string> &cardNumbers, vector<string> &userBanks, 
     cout << "Balance: " << balances[i] << RESET << UNDERLINE_OFF << endl;
 }
 
-double calculateFeeRecursive(double withdrawAmount, string currentUserBank, string userAccountType, int iterations)
+bool validateCardNumber(vector<string> &cardNumbers,
+                        string userCard,
+                        int &accountIndex)
 {
-    // Base case: end of bank list
-    if (iterations == NUM_BANKS)
+    for (int i = 0; i < cardNumbers.size(); i++)
     {
-        return withdrawAmount;
-    }
-    // If bank matches
-    if (currentUserBank == bankNames[iterations])
-    {
-        if (userAccountType == "Local")
+        if (cardNumbers[i] == userCard)
         {
-            return withdrawAmount - localFees[iterations];
-        }
-        else
-        {
-            return withdrawAmount - intlFees[iterations];
+            accountIndex = i;
+            return true;
         }
     }
-    // Recursive call: to the next bank
-    return calculateFeeRecursive(withdrawAmount, currentUserBank, userAccountType, iterations + 1);
-};
+    return false;
+}
 
 void calculateBills(double withdrawAmount, int &bills1000, int &bills500, int &bills100)
 {
@@ -502,6 +498,29 @@ bool withdraw(vector<double> &balances, int accountIndex, string presetAmount)
     double withdrawAmount = stod(presetAmount);              // Convert string to double
     return withdraw(balances, accountIndex, withdrawAmount); // Call Version 1
 }
+
+double calculateFeeRecursive(vector<double> &balances, string currentUserBank, string userAccountType, int accountIndex, int iterations)
+{
+    // Base case: end of bank list
+    if (iterations == NUM_BANKS)
+    {
+        return balances[accountIndex];
+    }
+    // If bank matches
+    if (currentUserBank == bankNames[iterations])
+    {
+        if (userAccountType == "Local")
+        {
+            return balances[accountIndex] - localFees[iterations];
+        }
+        else
+        {
+            return balances[accountIndex] - intlFees[iterations];
+        }
+    }
+    // Recursive call: to the next bank
+    return calculateFeeRecursive(balances, currentUserBank, userAccountType, accountIndex, iterations + 1);
+};
 
 //--------------------------------------------------------------------Admin Menu
 
@@ -667,7 +686,7 @@ void refillCash(int denom[], int billCount[])
     tm *localTime = localtime(&now);
 
     // Check if current time is between 8:00 and 8:15
-    if (localTime->tm_hour == 8 && localTime->tm_min <= 15)
+    if (localTime->tm_hour == 20 && localTime->tm_min <= 60)
     {
         // Refill bills
         int refillAmount;
