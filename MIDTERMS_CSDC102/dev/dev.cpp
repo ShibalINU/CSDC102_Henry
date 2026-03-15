@@ -5,8 +5,7 @@
 #include <ctime>
 using namespace std;
 
-//--------------------------------------------------------------------Main functions
-// Color codes
+//-----color codes for console output-----
 const string RESET = "\033[0m";      // Reset to default
 const string RED = "\033[31m";       // Red text
 const string GREEN = "\033[32m";     // Green text
@@ -21,17 +20,9 @@ const string ITALIC = "\033[3m";     // Italic text
 const string UNDERLINE = "\033[4m";  // Underline text
 const string SLOW_BLINK = "\033[5m"; // Slow blink text
 
-const string RAPID_BLINK = "\033[6m";        // Rapid blink on
-const string REVERSE_VIDEO = "\033[7m";      // Reverse video on
-const string CONCEAL = "\033[8m";            // Conceal on
-const string CROSSED_OUT = "\033[9m";        // Crossed-out on
-const string BOLD_OFF = "\033[22m";          // Bold off
-const string ITALIC_OFF = "\033[23m";        // Italic off
-const string UNDERLINE_OFF = "\033[24m";     // Underline off
-const string BLINK_OFF = "\033[25m";         // Blink off
-const string REVERSE_VIDEO_OFF = "\033[27m"; // Reverse video off
-const string CONCEAL_OFF = "\033[28m";       // Conceal off
-const string CROSSED_OUT_OFF = "\033[29m";   // Crossed-out off
+const string BOLD_OFF = "\033[22m";      // Bold off
+const string ITALIC_OFF = "\033[23m";    // Italic off
+const string UNDERLINE_OFF = "\033[24m"; // Underline off
 
 // Background color
 const string BLACK_BG = "\033[40m";   // Set background color to black
@@ -44,9 +35,10 @@ const string CYAN_BG = "\033[46m";    // Set background color to cyan
 const string WHITE_BG = "\033[47m";   // Set background color to white
 const string DEFAULT_BG = "\033[49m"; // Reset background color to default
 
+//-----------Global variables for in-memory storage )-----------------------
+// bank and cash data
 const int NUM_BANKS = 4;
 const int NUM_DENOMINATIONS = 3;
-
 string bankNames[NUM_BANKS] = {"BDO", "BPI", "Metrobank", "Security Bank"};
 double localFees[NUM_BANKS] = {25, 20, 30, 15};
 double intlFees[NUM_BANKS] = {150, 125, 200, 100};
@@ -63,8 +55,7 @@ vector<string> transactionDates;
 vector<string> transactionTimes;
 vector<string> transactionCards;
 
-//--------------------------------------------------------------------Function declarations
-
+//--------------------------------------------------------------------Function declarations---------------------------------------------
 int login(string &adminPasscode, vector<string> &cardNumbers, vector<string> &encodedPINs);
 
 void clientMenu(vector<string> &cardNumbers,
@@ -93,8 +84,7 @@ void logTransaction(const string &cardNum, const string &type, double amount, do
 void refillCash(int denom[], int billCount[]);
 void viewAccounts(vector<string> &cardNumbers, vector<double> &balances);
 void showAccountDetails(vector<string> &cardNumbers, vector<string> &userBanks, vector<string> &accountTypes, vector<double> &balances, int i);
-
-//--------------------------------------------------------------------Main
+//--------------------------------------------------------------------Main-----------------------------------------------------------------
 
 int main()
 {
@@ -128,7 +118,7 @@ int main()
     return 0;
 }
 
-//--------------------------------------------------------------------Login function
+//--------------------------------------------------------------------Login function----------------------------------------------
 
 int login(string &adminPasscode, vector<string> &cardNumbers, vector<string> &encodedPINs)
 {
@@ -144,6 +134,8 @@ int login(string &adminPasscode, vector<string> &cardNumbers, vector<string> &en
     cout << BOLD << BLUE << "Enter your choice: " << RESET;
     cin >> roleChoice;
 
+    clearScreen();
+
     if (roleChoice == 1)
     {
         return 1;
@@ -157,6 +149,7 @@ int login(string &adminPasscode, vector<string> &cardNumbers, vector<string> &en
             string passcode;
             cout << BOLD << BLUE << "Enter admin passcode: " << RESET;
             cin >> passcode;
+            clearScreen();
 
             if (encodeString(passcode) == adminPasscode)
             {
@@ -176,7 +169,7 @@ int login(string &adminPasscode, vector<string> &cardNumbers, vector<string> &en
     return 0;
 }
 
-//--------------------------------------------------------------------Security functions
+//--------------------------------------------------------------------Security functions---------------------------------------------
 
 string encodeString(string plain)
 {
@@ -194,7 +187,15 @@ string decodeString(string encoded)
     return decoded;
 }
 
-//--------------------------------------------------------------------Utilities
+//--------------------------------------------------------------------Utilities---------------------------------------------
+void clearScreen()
+{
+#ifdef _WIN32
+    system("cls");
+#else
+    system("clear");
+#endif
+}
 
 void displayDateTime()
 {
@@ -208,16 +209,7 @@ void displayDateTime()
          << timeinfo->tm_min << RESET << endl;
 }
 
-void clearScreen()
-{
-#ifdef _WIN32
-    system("cls");
-#else
-    system("clear");
-#endif
-}
-
-//--------------------------------------------------------------------Client Menu
+//--------------------------------------------------------------------Client Menu---------------------------------------------
 
 void clientMenu(vector<string> &cardNumbers,
                 vector<string> &encodedPINs,
@@ -236,6 +228,8 @@ void clientMenu(vector<string> &cardNumbers,
         cout << BOLD << BLUE << "Enter PIN: " << RESET;
         cin >> userPIN;
 
+        clearScreen();
+
         if (encodeString(userPIN) == encodedPINs[accountIndex])
         {
             displayDateTime();
@@ -246,12 +240,12 @@ void clientMenu(vector<string> &cardNumbers,
             do
             {
                 cout << BOLD << CYAN << "======= CLIENT MENU ========" << RESET << endl;
-                cout << BOLD << ITALIC << "1. Check Balance" << endl;
-                cout << "2. Withdraw Cash" << endl;
-                cout << "3. Transfer Cash" << endl;
-                cout << "4. View Transaction History" << endl;
-                cout << "5. Change PIN" << endl;
-                cout << "6. Exit" << ITALIC_OFF << endl;
+                cout << BOLD << ITALIC << "[1] Check Balance" << endl;
+                cout << "[2] Withdraw Cash" << endl;
+                cout << "[3] Transfer Cash" << endl;
+                cout << "[4] View Transaction History" << endl;
+                cout << "[5] Change PIN" << endl;
+                cout << "[6] Log Out" << ITALIC_OFF << endl;
                 //-----
                 cout << BOLD << BLUE << "\nEnter your choice: " << RESET;
                 cin >> choiceUser;
@@ -260,30 +254,30 @@ void clientMenu(vector<string> &cardNumbers,
 
                 switch (choiceUser)
                 {
-                case 1:
+                case 1: // Check balance
                 {
                     displayDateTime();
                     showAccountDetails(cardNumbers, userBanks, accountTypes, balances, accountIndex);
-                    cout << BOLD << CYAN << "Current Balance: Php " << balances[accountIndex] << endl;
+                    cout << BOLD << YELLOW << "Current Balance: Php " << balances[accountIndex] << endl;
                     break;
                 }
-                case 2:
+                case 2: // Withdraw cash
                 {
 
                     displayDateTime();
-                    showAccountDetails(cardNumbers, userBanks, accountTypes, balances, accountIndex);
                     // Withdraw cash
                     int withdrawChoice;
                     cout << BOLD << CYAN << "Select Withdrawal Option:\n"
                          << RESET;
-                    cout << ITALIC << "1. Predefined Amount (500, 1000, 2000, 5000, 10000)\n";
-                    cout << "2. Custom Amount\n";
-                    cout << "3. Exit\n"
+                    cout << ITALIC << "[1] Predefined Amount (500, 1000, 2000, 5000, 10000)\n";
+                    cout << "[2] Custom Amount\n";
+                    cout << "[3] Exit\n"
                          << RESET;
                     cout << BOLD << BLUE << "Enter choice: " << RESET;
                     cin >> withdrawChoice;
 
                     clearScreen();
+
                     double withdrawAmount;
                     int bills1000 = 0;
                     int bills500 = 0;
@@ -294,15 +288,15 @@ void clientMenu(vector<string> &cardNumbers,
                         int presetChoice;
                         cout << BOLD << CYAN << "Select Amount:\n"
                              << RESET;
-                        cout << BOLD << ITALIC << "1. Php 500\n"
+                        cout << BOLD << ITALIC << "[1] Php 500\n"
                              << RESET;
-                        cout << BOLD << ITALIC << "2. Php 1000\n"
+                        cout << BOLD << ITALIC << "[2] Php 1000\n"
                              << RESET;
-                        cout << BOLD << ITALIC << "3. Php 2000\n"
+                        cout << BOLD << ITALIC << "[3] Php 2000\n"
                              << RESET;
-                        cout << BOLD << ITALIC << "4. Php 5000\n"
+                        cout << BOLD << ITALIC << "[4] Php 5000\n"
                              << RESET;
-                        cout << BOLD << ITALIC << "5. Php 10000\n"
+                        cout << BOLD << ITALIC << "[5] Php 10000\n"
                              << RESET;
                         cout << BOLD << ITALIC << BLUE << "Enter Choice: " << RESET;
                         cin >> presetChoice;
@@ -313,6 +307,7 @@ void clientMenu(vector<string> &cardNumbers,
                             presetAmount = "500";
                             cout << BOLD << YELLOW << "Preset amount selected: Php " << presetAmount << RESET << endl;
                             cout << BOLD << GREEN << "Withdrawal Successful! " << RESET << endl;
+                            logTransaction(cardNumbers[accountIndex], "Withdrawal", stod(presetAmount), 0);
                         }
 
                         else if (presetChoice == 2)
@@ -320,6 +315,7 @@ void clientMenu(vector<string> &cardNumbers,
                             presetAmount = "1000";
                             cout << BOLD << YELLOW << "Preset amount selected: Php " << presetAmount << RESET << endl;
                             cout << BOLD << GREEN << "Withdrawal Successful! " << RESET << endl;
+                            logTransaction(cardNumbers[accountIndex], "Withdrawal", stod(presetAmount), 0);
                         }
 
                         else if (presetChoice == 3)
@@ -327,18 +323,21 @@ void clientMenu(vector<string> &cardNumbers,
                             presetAmount = "2000";
                             cout << BOLD << YELLOW << "Preset amount selected: Php " << presetAmount << RESET << endl;
                             cout << BOLD << GREEN << "Withdrawal Successful! " << RESET << endl;
+                            logTransaction(cardNumbers[accountIndex], "Withdrawal", stod(presetAmount), 0);
                         }
                         else if (presetChoice == 4)
                         {
                             presetAmount = "5000";
                             cout << BOLD << YELLOW << "Preset amount selected: Php " << presetAmount << RESET << endl;
                             cout << BOLD << GREEN << "Withdrawal Successful! " << RESET << endl;
+                            logTransaction(cardNumbers[accountIndex], "Withdrawal", stod(presetAmount), 0);
                         }
                         else if (presetChoice == 5)
                         {
                             presetAmount = "10000";
                             cout << BOLD << YELLOW << "Preset amount selected: Php " << presetAmount << RESET << endl;
                             cout << BOLD << GREEN << "Withdrawal Successful! " << RESET << endl;
+                            logTransaction(cardNumbers[accountIndex], "Withdrawal", stod(presetAmount), 0);
                         }
                         else
                         {
@@ -376,7 +375,7 @@ void clientMenu(vector<string> &cardNumbers,
                     billCount[2] -= bills1000;
                 }
                 break;
-                case 3:
+                case 3: // Transfer cash
                 {
                     displayDateTime();
                     string recipientCard;
@@ -411,10 +410,9 @@ void clientMenu(vector<string> &cardNumbers,
                     }
                 }
                 break;
-                case 4:
+                case 4: // View transaction history
                 {
                     displayDateTime();
-                    showAccountDetails(cardNumbers, userBanks, accountTypes, balances, accountIndex);
 
                     cout << BOLD << CYAN << "\n====== Last Transactions ======\n"
                          << RESET;
@@ -445,7 +443,7 @@ void clientMenu(vector<string> &cardNumbers,
                     }
                 }
                 break;
-                case 5:
+                case 5: // Change PIN
                 {
                     displayDateTime();
                     string newpin;
@@ -467,8 +465,8 @@ void clientMenu(vector<string> &cardNumbers,
                          << RESET;
                     break;
                 }
-                case 6:
-                    cout << BOLD << CYAN << "Exiting safely...\n"
+                case 6: // Log out
+                    cout << BOLD << CYAN << "Logging out safely...\n"
                          << RESET;
                     break;
                 }
@@ -488,14 +486,14 @@ void clientMenu(vector<string> &cardNumbers,
         return;
     }
 }
-
+// show account details function to display bank, account type, and balance
 void showAccountDetails(vector<string> &cardNumbers, vector<string> &userBanks, vector<string> &accountTypes, vector<double> &balances, int i)
 {
     cout << BOLD << UNDERLINE << YELLOW << "Bank: " << userBanks[i] << endl;
     cout << "Account Type: " << accountTypes[i] << endl;
     cout << "Balance: " << balances[i] << RESET << UNDERLINE_OFF << endl;
 }
-
+// validateCardNumber function to check if the entered card number exists and return its index
 bool validateCardNumber(vector<string> &cardNumbers,
                         string userCard,
                         int &accountIndex)
@@ -510,7 +508,7 @@ bool validateCardNumber(vector<string> &cardNumbers,
     }
     return false;
 }
-
+// calculateBills function to determine optimal bill count for a given withdrawal amount
 void calculateBills(double withdrawAmount, int &bills1000, int &bills500, int &bills100)
 {
     if (withdrawAmount >= 1000)
@@ -529,7 +527,7 @@ void calculateBills(double withdrawAmount, int &bills1000, int &bills500, int &b
         calculateBills(withdrawAmount - 100, bills1000, bills500, bills100);
     }
 }
-
+// logtransaction function to store transaction details in vectors (for in-memory storage, can be extended to file storage)
 void logTransaction(const string &cardNum, const string &type,
                     double amount, double fee)
 {
@@ -553,7 +551,7 @@ void logTransaction(const string &cardNum, const string &type,
     transactionDates.push_back(date);
     transactionTimes.push_back(time);
 }
-
+// Version 1: Custom amount withdrawal
 bool withdraw(vector<double> &balances, int accountIndex, double withdrawAmount)
 {
     // Process withdrawal
@@ -571,7 +569,7 @@ bool withdraw(vector<double> &balances, int accountIndex, string presetAmount)
     double withdrawAmount = stod(presetAmount);              // Convert string to double
     return withdraw(balances, accountIndex, withdrawAmount); // Call Version 1
 }
-
+// Recursive fee calculation based on bank and account type
 double calculateFeeRecursive(vector<double> &balances, string currentUserBank, string userAccountType, int accountIndex, int iterations)
 {
     // Base case: end of bank list
@@ -595,7 +593,7 @@ double calculateFeeRecursive(vector<double> &balances, string currentUserBank, s
     return calculateFeeRecursive(balances, currentUserBank, userAccountType, accountIndex, iterations + 1);
 };
 
-//--------------------------------------------------------------------Admin Menu
+//--------------------------------------------------------------------Admin Menu-------------------------------------------------------------
 
 void adminMenu(vector<string> &cardNumbers,
                vector<string> &encodedPINs,
@@ -609,16 +607,16 @@ void adminMenu(vector<string> &cardNumbers,
     do
     {
 
-        cout << BOLD << CYAN << "\n=========Admin Menu:======== " << RESET << endl;
-        cout << ITALIC << "1. View Current Cash" << endl;
-        cout << "2. Refill Cash" << endl;
-        cout << "3. Create Account" << endl;
-        cout << "4. View accounts" << endl;
-        cout << "5. Delete Account" << endl;
-        cout << "6. Reset account passwords" << endl;
-        cout << "7. Change admin Passcode" << endl;
-        cout << "8. List of all admin users" << endl;
-        cout << "9. Exit" << ITALIC_OFF << endl;
+        cout << BOLD << CYAN << "\n=========Admin Menu:========== " << RESET << endl;
+        cout << ITALIC << "[1] View Current Cash" << endl;
+        cout << "[2] Refill Cash" << endl;
+        cout << "[3] Create Account" << endl;
+        cout << "[4] View accounts" << endl;
+        cout << "[5] Delete Account" << endl;
+        cout << "[6] Reset account passwords" << endl;
+        cout << "[7] Change admin Passcode" << endl;
+        cout << "[8] List of all admin users" << endl;
+        cout << "[9] Log out" << ITALIC_OFF << endl;
 
         cout << BOLD << BLUE << "\nEnter your choice: " << RESET;
         cin >> choiceAdmin;
@@ -627,7 +625,7 @@ void adminMenu(vector<string> &cardNumbers,
 
         switch (choiceAdmin)
         {
-        case 1:
+        case 1: // View current cash
         {
             cout << BOLD << CYAN << UNDERLINE << "Current cash in machine:\n"
                  << RESET << UNDERLINE_OFF;
@@ -641,14 +639,14 @@ void adminMenu(vector<string> &cardNumbers,
             break;
         }
         break;
-        case 2:
+        case 2: // Refill cash
         {
             refillCash(denominations, billCount);
             break;
         }
 
         break;
-        case 3:
+        case 3: // Create account
         {
             string card, pin, bank, type;
             double bal;
@@ -678,12 +676,12 @@ void adminMenu(vector<string> &cardNumbers,
                  << RESET;
         }
         break;
-        case 4:
+        case 4: // View accounts
         {
             viewAccounts(cardNumbers, balances);
         }
         break;
-        case 5:
+        case 5: // Delete account
         {
             viewAccounts(cardNumbers, balances);
             int index;
@@ -700,7 +698,7 @@ void adminMenu(vector<string> &cardNumbers,
                  << RESET;
         }
         break;
-        case 6: // veryyyyy buggyyy, it's still not updating in main, idk what's happening yet
+        case 6: // Reset account passwords
         {
             viewAccounts(cardNumbers, balances);
             int index;
@@ -716,17 +714,17 @@ void adminMenu(vector<string> &cardNumbers,
                  << RESET;
         }
         break;
-        case 7:
+        case 7: //  Change admin passcode
         {
             string currentPasscode;
             cout << BOLD << BLUE << "Enter current passcode: " << RESET;
             cin >> currentPasscode;
-            if (currentPasscode == adminPasscode)
+            if (encodeString(currentPasscode) == adminPasscode)
             {
                 string newPasscode;
                 cout << BOLD << BLUE << "Enter new passcode: " << RESET;
                 cin >> newPasscode;
-                adminPasscode = newPasscode;
+                adminPasscode = encodeString(newPasscode);
                 cout << BOLD << GREEN << "Admin passcode updated successfully!\n"
                      << RESET;
             }
@@ -737,11 +735,12 @@ void adminMenu(vector<string> &cardNumbers,
             }
         }
         break;
-        case 8:
-            // List of all admin users
+        case 8: // List of all admin users - Since there is only one admin, we will just show the admin passcode as the "admin user"
+        {
+            cout << BOLD << BLUE << "Admin Passcode: " << RESET << adminPasscode << endl;
             break;
-        case 9:
-            // Exit
+        }
+        case 9: // Exit
             cout << BOLD << YELLOW << "Exiting Admin Menu..." << RESET << endl;
 
             break;
@@ -752,7 +751,8 @@ void adminMenu(vector<string> &cardNumbers,
 
     } while (choiceAdmin != 9);
 }
-// Henry === I can just add refill cash func inside the case statement. This is just tp make it cleaner idk
+// Admin menu options:
+// 1. refill cash - allows admin to add more bills to the machine (only allowed between 8:00 and 8:15)
 void refillCash(int denom[], int billCount[])
 {
     time_t now = time(0);
@@ -767,6 +767,7 @@ void refillCash(int denom[], int billCount[])
         {
             cout << BOLD << BLUE << "Enter number of PHP " << denom[i] << " bills to add: " << RESET;
             cin >> refillAmount;
+            // Update bill count
             billCount[i] += refillAmount;
         }
         cout << BOLD << GREEN << "Refill successful." << RESET << endl;
@@ -776,7 +777,7 @@ void refillCash(int denom[], int billCount[])
         cout << BOLD << RED << "Refill allowed only from 8:00 AM to 8:15 AM." << RESET << endl;
     }
 }
-
+// 2. view accounts - shows list of accounts with their card numbers and balances
 void viewAccounts(vector<string> &cardNumbers, vector<double> &balances)
 {
     for (int i = 0; i < cardNumbers.size(); i++)
