@@ -268,10 +268,12 @@ void clientMenu(vector<string> &cardNumbers,
                     showAccountDetails(cardNumbers, userBanks, accountTypes, accountIndex);
 
                     int withdrawChoice;
-                    cout << BOLD << CYAN << "Select Withdrawal Option:\n" << RESET;
+                    cout << BOLD << CYAN << "Select Withdrawal Option:\n"
+                         << RESET;
                     cout << ITALIC << "1. Predefined Amount (500, 1000, 2000, 5000, 10000)\n";
                     cout << "2. Custom Amount\n";
-                    cout << "3. Exit\n" << RESET;
+                    cout << "3. Exit\n"
+                         << RESET;
                     cout << BOLD << BLUE << "Enter choice: " << RESET;
                     cin >> withdrawChoice;
                     cout << "------------------------------------------" << endl;
@@ -282,12 +284,13 @@ void clientMenu(vector<string> &cardNumbers,
                     if (withdrawChoice == 1)
                     {
                         int presetChoice;
-                        cout << BOLD << CYAN << "Select Amount:\n" << RESET;
-                        cout << "1. Php 500\n";
-                        cout << "2. Php 1000\n";
-                        cout << "3. Php 2000\n";
-                        cout << "4. Php 5000\n";
-                        cout << "5. Php 10000\n";
+                        cout << BOLD << CYAN << "Select Amount:\n"
+                             << RESET;
+                        cout << "[1] Php 500\n";
+                        cout << "[2] Php 1000\n";
+                        cout << "[3] Php 2000\n";
+                        cout << "[4] Php 5000\n";
+                        cout << "[5] Php 10000\n";
                         cout << "Enter Choice: ";
                         cin >> presetChoice;
 
@@ -313,7 +316,8 @@ void clientMenu(vector<string> &cardNumbers,
                         }
                         else
                         {
-                            cout << BOLD << RED << "Invalid input.\n" << RESET;
+                            cout << BOLD << RED << "Invalid input.\n"
+                                 << RESET;
                             break;
                         }
 
@@ -326,7 +330,8 @@ void clientMenu(vector<string> &cardNumbers,
 
                         if ((int)withdrawAmount % 100 != 0)
                         {
-                            cout << BOLD << RED << "Amount must be a multiple of 100.\n" << RESET;
+                            cout << BOLD << RED << "Amount must be a multiple of 100.\n"
+                                 << RESET;
                             break;
                         }
                     }
@@ -342,7 +347,8 @@ void clientMenu(vector<string> &cardNumbers,
                         {
                             if (withdrawAmount > dailyLimits[i])
                             {
-                                cout << BOLD << RED << "Exceeds daily withdrawal limit.\n" << RESET;
+                                cout << BOLD << RED << "Exceeds daily withdrawal limit.\n"
+                                     << RESET;
                                 break;
                             }
                         }
@@ -359,7 +365,8 @@ void clientMenu(vector<string> &cardNumbers,
                     // Check if ATM has enough bills available
                     if (bills1000 > billCount[2] || bills500 > billCount[1] || bills100 > billCount[0])
                     {
-                        cout << BOLD << RED << "ATM does not have enough cash. Withdrawal failed.\n" << RESET;
+                        cout << BOLD << RED << "ATM does not have enough cash. Withdrawal failed.\n"
+                             << RESET;
                         break;
                     }
 
@@ -377,7 +384,8 @@ void clientMenu(vector<string> &cardNumbers,
 
                     if (!success)
                     {
-                        cout << BOLD << RED << "Insufficient balance. Withdrawal failed.\n" << RESET;
+                        cout << BOLD << RED << "Insufficient balance. Withdrawal failed.\n"
+                             << RESET;
                         break;
                     }
 
@@ -393,7 +401,8 @@ void clientMenu(vector<string> &cardNumbers,
                     balances[accountIndex] = balanceAfterDeduction;
 
                     clearScreen();
-                    cout << BOLD << GREEN << "\nWithdrawal Successful!\n" << RESET;
+                    cout << BOLD << GREEN << "\nWithdrawal Successful!\n"
+                         << RESET;
                     cout << BOLD << CYAN << "\n==================RECEIPT===================" << RESET << endl;
                     cout << BOLD << YELLOW << "Transaction fee deducted: Php " << deductedFee << RESET << endl;
                     cout << BOLD << CYAN << "Updated Balance: Php " << balances[accountIndex] << RESET << endl;
@@ -403,12 +412,13 @@ void clientMenu(vector<string> &cardNumbers,
                     cout << "Transaction Fee: Php " << deductedFee << RESET << endl;
 
                     // Bill distribution
-                    cout << BOLD << CYAN << "\nBills Dispensed:\n" << RESET;
+                    cout << BOLD << CYAN << "\nBills Dispensed:\n"
+                         << RESET;
                     cout << "1000 x " << bills1000 << endl;
                     cout << "500 x " << bills500 << endl;
                     cout << "100 x " << bills100 << endl;
                     cout << endl;
-                    
+
                     // Record transaction
                     logTransaction(cardNumbers[accountIndex], "Withdrawal", withdrawAmount, deductedFee);
                 }
@@ -479,7 +489,8 @@ void clientMenu(vector<string> &cardNumbers,
 
                     if (count == 0)
                     {
-                        cout << RED << "No transactions found.\n" << RESET;
+                        cout << RED << "No transactions found.\n"
+                             << RESET;
                     }
                 }
                 break;
@@ -502,11 +513,13 @@ void clientMenu(vector<string> &cardNumbers,
                     cout << BOLD << CYAN << "Enter new PIN: " << RESET;
                     cin >> newpin;
                     encodedPINs[accountIndex] = encodeString(newpin);
-                    cout << BOLD << GREEN << "PIN changed successfully!\n" << RESET;
+                    cout << BOLD << GREEN << "PIN changed successfully!\n"
+                         << RESET;
                     break;
                 }
                 case 6: // Log out
-                    cout << BOLD << CYAN << "Logging out safely...\n" << RESET;
+                    cout << BOLD << CYAN << "Logging out safely...\n"
+                         << RESET;
                     break;
                 }
 
@@ -515,10 +528,10 @@ void clientMenu(vector<string> &cardNumbers,
 
         else
         {
-            cout << BOLD << RED << "Incorrect Passcode. Please Try Again.\n" << RESET;
+            cout << BOLD << RED << "Incorrect Passcode. Please Try Again.\n"
+                 << RESET;
             return;
         }
-
     }
     else
     {
@@ -590,6 +603,25 @@ void logTransaction(const string &cardNum, const string &type,
     transactionFees.push_back(fee);
     transactionDates.push_back(date);
     transactionTimes.push_back(time);
+
+    // transaction logging to CSV file
+    ofstream file("transactions.csv", ios::app);
+
+    if (file.is_open())
+    {
+        file << date << ","
+             << time << ","
+             << cardNum << ","
+             << type << ","
+             << amount << ","
+             << fee << endl;
+
+        file.close();
+    }
+    else
+    {
+        cerr << "Error: Could not open transactions.csv\n";
+    }
 }
 // Version 1: Custom amount withdrawal
 bool withdraw(vector<double> &balances, int accountIndex, double withdrawAmount)
