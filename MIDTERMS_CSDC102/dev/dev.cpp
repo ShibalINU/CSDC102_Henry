@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <fstream>
 #include <vector>
 #include <ctime>
 using namespace std;
@@ -120,10 +121,10 @@ int main()
 int login(string &adminPasscode, vector<string> &cardNumbers, vector<string> &encodedPINs)
 {
     int roleChoice;
-    cout << BOLD << CYAN << "======================================================" << endl;
-    cout << CYAN_BG << "        K H G :  B A N K I N G  S Y S T E M           " << DEFAULT_BG
+    cout << BOLD << CYAN << ITALIC << "======================================================" << endl;
+    cout << "        K H G :  B A N K I N G  S Y S T E M           "
          << endl;
-    cout << "======================================================" << endl;
+    cout << "======================================================" << ITALIC_OFF << endl;
     cout << "Supported Banks: BDO, BPI, Metrobank, Security Bank" << endl;
     cout << "======================================================" << RESET << endl
          << endl;
@@ -230,9 +231,9 @@ void clientMenu(vector<string> &cardNumbers,
                 clearScreen();
 
                 displayDateTime();
-                cout << "\nBank: " << userBanks[i] << endl;
+                cout << BOLD << YELLOW << "Bank: " << userBanks[i] << endl;
                 cout << "Account Type: " << accountTypes[i] << endl;
-                cout << "Balance: " << balances[i] << endl;
+                cout << "Balance: " << balances[i] << RESET << endl;
 
                 int accountIndex = i;
                 int choiceUser;
@@ -240,13 +241,13 @@ void clientMenu(vector<string> &cardNumbers,
 
                 do
                 {
-                    cout << BOLD << CYAN << CYAN_BG << "\n//======= CLIENT MENU ========//" << RESET << DEFAULT_BG << endl;
-                    cout << BLUE << "1. Check Balance" << endl;
+                    cout << BOLD << CYAN << "======= CLIENT MENU ========" << RESET << endl;
+                    cout << BOLD << "1. Check Balance" << endl;
                     cout << "2. Withdraw Cash" << endl;
                     cout << "3. Transfer Cash" << endl;
                     cout << "4. View Transaction History" << endl;
                     cout << "5. Change PIN" << endl;
-                    cout << "6. Exit" << RESET << endl;
+                    cout << "6. Exit" << endl;
                     //-----
                     cout << BOLD << YELLOW << "\nEnter your choice: " << RESET;
                     cin >> choiceUser;
@@ -268,10 +269,23 @@ void clientMenu(vector<string> &cardNumbers,
                         // Transfer cash
                         break;
                     case 4:
-                        // View transaction history
+                    {
+                        displayDateTime();
+                        ifstream file("transactions.csv");
+                        string line;
+                        cout << BOLD << CYAN << "\n====== Last Transactions ======\n"
+                             << RESET;
+                        while (getline(file, line))
+                        {
+                            if (line.find(cardNumbers[accountIndex]) != string::npos)
+                                cout << line << endl;
+                        }
+                        file.close();
                         break;
+                    }
                     case 5:
                     {
+                        displayDateTime();
                         string newpin;
                         cout << BOLD << CYAN << "Enter new PIN: " << RESET;
                         cin >> newpin;
@@ -288,6 +302,29 @@ void clientMenu(vector<string> &cardNumbers,
                 } while (choiceUser != 6);
             }
         }
+    }
+}
+
+void logTransaction(const string &cardNum, const string &type,
+                    double amount, double fee)
+{
+    ofstream file("transactions.csv", ios::app);
+    if (file.is_open())
+    {
+        // Get current date and time
+        time_t now = time(0);
+        tm *timeinfo = localtime(&now);
+        // Write transaction to file
+        file << (timeinfo->tm_mon + 1) << "/" << timeinfo->tm_mday
+             << "/" << (timeinfo->tm_year + 1900) << ","
+             << timeinfo->tm_hour << ":" << timeinfo->tm_min << ","
+             << cardNum << "," << type << ","
+             << amount << "," << fee << endl;
+        file.close();
+    }
+    else
+    {
+        cerr << "Error: Could not open transactions.csv" << endl;
     }
 }
 
