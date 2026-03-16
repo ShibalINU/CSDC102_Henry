@@ -83,13 +83,16 @@ void calculateBills(double withdrawAmount, int &bills1000, int &bills500, int &b
 void logTransaction(const string &cardNum, const string &type, double amount, double fee);
 void refillCash(int denom[], int billCount[]);
 void viewAccounts(vector<string> &cardNumbers, vector<double> &balances);
+void displayUIMenu();
+void displayUIClient();
+void displayUIAdmin();
 void showAccountDetails(vector<string> &cardNumbers, vector<string> &userBanks, vector<string> &accountTypes, int i);
 //--------------------------------------------------------------------Main-----------------------------------------------------------------
 
 int main()
 {
     // vectors
-    vector<string> cardNumbers = {"12345678910", "10987654321", "11111111111"};
+    vector<string> cardNumbers = {"1234567891012345", "1098765432154321", "0101010101010101"};
     vector<string> encodedPINs = {encodeString("6767"), encodeString("9876"), encodeString("6543")};
     vector<double> balances = {9000, 5600, 6700};
     vector<string> userBanks = {"BPI", "BDO", "Metrobank"};
@@ -123,14 +126,8 @@ int main()
 int login(string &adminPasscode, vector<string> &cardNumbers, vector<string> &encodedPINs)
 {
     int roleChoice;
-    cout << BOLD << CYAN << ITALIC << "======================================================" << endl;
-    cout << "        K H G :  B A N K I N G  S Y S T E M           "
-         << endl;
-    cout << "======================================================" << ITALIC_OFF << endl;
-    cout << "Supported Banks: BDO, BPI, Metrobank, Security Bank" << endl;
-    cout << "======================================================" << RESET << endl
-         << endl;
-    cout << BOLD << YELLOW << "\n[1] Client   [2] Admin   [3] Shutdown" << RESET << endl;
+
+    displayUIMenu();
     cout << BOLD << BLUE << "Enter your choice: " << RESET;
     cin >> roleChoice;
 
@@ -239,13 +236,7 @@ void clientMenu(vector<string> &cardNumbers,
 
             do
             {
-                cout << BOLD << CYAN << "======= CLIENT MENU ========" << RESET << endl;
-                cout << BOLD << ITALIC << "[1] Check Balance" << endl;
-                cout << "[2] Withdraw Cash" << endl;
-                cout << "[3] Transfer Cash" << endl;
-                cout << "[4] View Transaction History" << endl;
-                cout << "[5] Change PIN" << endl;
-                cout << "[6] Log Out" << ITALIC_OFF << endl;
+                displayUIClient();
                 //-----
                 cout << BOLD << BLUE << "\nEnter your choice: " << RESET;
                 cin >> choiceUser;
@@ -448,7 +439,7 @@ void clientMenu(vector<string> &cardNumbers,
                         balances[accountIndex] -= transferAmount; // Deduct from sender
                         balances[recIndex] += transferAmount;     // Add to recipient
 
-                        logTransaction(cardNumbers[accountIndex], "Transfer Sent", transferAmount, 0);
+                        logTransaction(cardNumbers[accountIndex], "Transfer Sent", transferAmount, 125);
                         logTransaction(cardNumbers[recIndex], "Transfer Received", transferAmount, 0);
                         cout << BOLD << GREEN << "Transfer successful! Php " << transferAmount << " sent to card " << recipientCard << RESET << endl;
                     }
@@ -679,16 +670,7 @@ void adminMenu(vector<string> &cardNumbers,
     do
     {
 
-        cout << BOLD << CYAN << "\n=========Admin Menu:========== " << RESET << endl;
-        cout << ITALIC << "[1] View Current Cash" << endl;
-        cout << "[2] Refill Cash" << endl;
-        cout << "[3] Create Account" << endl;
-        cout << "[4] View accounts" << endl;
-        cout << "[5] Delete Account" << endl;
-        cout << "[6] Reset account passwords" << endl;
-        cout << "[7] Change admin Passcode" << endl;
-        cout << "[8] List of all admin users" << endl;
-        cout << "[9] Log out" << ITALIC_OFF << endl;
+        displayUIAdmin();
 
         cout << BOLD << BLUE << "\nEnter your choice: " << RESET;
         cin >> choiceAdmin;
@@ -856,4 +838,58 @@ void viewAccounts(vector<string> &cardNumbers, vector<double> &balances)
     {
         cout << BOLD << BLUE << i << " " << cardNumbers[i] << " Balance: " << balances[i] << RESET << endl;
     }
+}
+
+void displayUIMenu()
+{
+
+    cout << BOLD << CYAN << "================================================================" << endl;
+    cout << BOLD << YELLOW << "|                  KHG: BANKING SYSTEM                         |" << RESET << endl;
+    cout << BOLD << CYAN << "|   Supported Banks: BDO, BPI, Metrobank, Security Bank        |" << endl;
+    cout << "================================================================" << endl;
+    cout << "|                                                              |" << endl;
+    cout << "|                                                              |" << RESET << endl;
+    cout << BLUE << "|                   [1] Client Login                           |" << RESET << endl;
+    cout << BLUE << "|                   [2] Admin  Login                           |" << RESET << endl;
+    cout << RED << "|                   [3] Exit                                   |" << RESET << endl;
+    cout << CYAN << "|                                                              |" << endl;
+    cout << CYAN << "|                                                              |" << endl;
+    cout << BOLD << "================================================================" << RESET << endl;
+}
+void displayUIClient()
+{
+
+    cout << BOLD << CYAN << "================================================================" << endl;
+    cout << BOLD << YELLOW << "|                  KHG: BANKING SYSTEM                         |" << RESET << endl;
+    cout << BOLD << CYAN << "|                       CLIENT MENU                            |" << endl;
+    cout << "================================================================" << endl;
+    cout << "|                                                              |" << endl;
+    cout << BLUE << "|                    [1] Check Balances                        |" << RESET << endl;
+    cout << BLUE << "|                    [2] Withdraw Cash                         |" << RESET << endl;
+    cout << BLUE << "|                    [3] Transfer Cash                         |" << RESET << endl;
+    cout << BLUE << "|                    [4] View Transaction History              |" << RESET << endl;
+    cout << BLUE << "|                    [5] Change PIN                            |" << RESET << endl;
+    cout << RED << "|                    [6] Log Out                               |" << RESET << endl;
+    cout << CYAN << "|                                                              |" << endl;
+    cout << BOLD << "================================================================" << RESET << endl;
+}
+void displayUIAdmin()
+{
+
+    cout << BOLD << CYAN << "\n================================================================" << endl;
+    cout << BOLD << YELLOW << "|                  KHG: BANKING SYSTEM                         |" << RESET << endl;
+    cout << BOLD << CYAN << "|                       ADMIN MENU                             |" << endl;
+    cout << "================================================================" << endl;
+    cout << "|                                                              |" << endl;
+    cout << BLUE << "|                    [1] View Current Cash                     |" << RESET << endl;
+    cout << BLUE << "|                    [2] Refill Cash                           |" << RESET << endl;
+    cout << BLUE << "|                    [3] Create Account                        |" << RESET << endl;
+    cout << BLUE << "|                    [4] View Accounts                         |" << RESET << endl;
+    cout << BLUE << "|                    [5] Delete Accounts                       |" << RESET << endl;
+    cout << BLUE << "|                    [6] Reset Accounts                        |" << RESET << endl;
+    cout << BLUE << "|                    [7] Change Admin Passcode                 |" << RESET << endl;
+    cout << BLUE << "|                    [8] List of all admin users               |" << RESET << endl;
+    cout << RED << "|                    [9] Log Out                               |" << RESET << endl;
+    cout << CYAN << "|                                                              |" << endl;
+    cout << BOLD << "================================================================" << RESET << endl;
 }
