@@ -8,7 +8,6 @@ class bankAccount{
             string accountHolder;
             double balance;
         public:
-        
             bankAccount(string holder, double depo){
                 accountHolder = holder;
                 balance = depo;
@@ -29,7 +28,8 @@ class bankAccount{
             }
             
             void displayBalance(){
-                cout << "Balance avaialble: " <<balance << endl;
+                cout << "Account holder name: " << accountHolder <<  endl;
+                cout << "Balance avaialble: " << balance << endl;
             }
     };
     
