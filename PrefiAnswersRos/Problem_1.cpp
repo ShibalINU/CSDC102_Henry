@@ -1,9 +1,16 @@
-//formatting not final
-
 #include <iostream>
 #include <string>
-#include <vector>
+#include <iomanip>
 using namespace std;
+
+void clearScreen()
+{
+#ifdef _WIN32
+    system("cls");
+#else
+    system("clear");
+#endif
+}
 
 struct Student
 {
@@ -15,35 +22,48 @@ struct Student
 
 int main()
 {
-    Student Students[2];
-    for (int i = 0; i < 2; i++)
+    Student Students[5];
+    for (int i = 0; i < 5; i++)
     {
         cout << "Enter name of student " << i + 1 << ": " << endl;
+        cin.ignore();
         getline(cin, Students[i].name);
+        
+        clearScreen();
         cout << "Enter midterm grade for " << Students[i].name << ": " << endl;
         cin >> Students[i].midterm;
 
+        clearScreen();
+        
         cout << "Enter final exam grade for " << Students[i].name << ": " << endl;
         cin >> Students[i].final_exam;
-
-        cin.ignore();
+        
+        clearScreen();
 
         Students[i].average = (Students[i].midterm + Students[i].final_exam) / 2;
     }
-    cout << "Name                   Midterm      Final     Average       Remark" << endl;
-    cout << "-----                  --------     ------    -------       ------" << endl;
-    for (int i = 0; i < 2; i++)
-    {
-        cout << Students[i].name << "       " << Students[i].midterm << "           " << Students[i].final_exam << "           " << Students[i].average;
+    
+    cout << left << setw(20) << "Name"
+         << setw(10) << "Midterm"
+         << setw(10) << "Final"
+         << setw(10) << "Average"
+         << "Remark" << endl;
+    cout << "-----               ------   ------     -------   ------     \n";
+    
+    for (int i = 0; i < 5; i++) {
+        cout << left << setw(20) << Students[i].name
+             << setw(10) << Students[i].midterm
+             << setw(10) << Students[i].final_exam
+             << setw(10) << Students[i].average;
+
         if (Students[i].average >= 75)
-        {
-            cout << "       Passed" << endl;
-        }
+            cout << "Passed";
         else
-        {
-            cout << "           Failed" << endl;
-        }
+            cout << "Failed";
+
+        cout << endl;
     }
+
 
     return 0;
 }
