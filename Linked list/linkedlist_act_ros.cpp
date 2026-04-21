@@ -98,3 +98,121 @@ class Node{
         prev = nullptr;
     }
 };
+
+class CSVManager{
+    public:
+        bool parseLine(string line, string fields[], int fieldCount){
+            int idx = 0;
+            string token = "";
+            for(int i = 0; i <= (int)line.length(); i++){
+                if (i == (int) line.length()|| line[i] == ","){
+                    if (idx >= fieldCount){
+                        return false;
+                    }
+                    fields[idx++] = token;
+                    token = "";
+                }else{
+                    token += line[i];
+                }
+            }
+            return idx == fieldCount;
+        }
+        void writeDefaultSongs(){
+            ofstream file(csv_file);
+            if(!file.is_open()){
+                cout << "Error";
+                return;
+            }
+            file << header << "\n";
+            file << "Bohemian Rhapsody,Queen,Rock,1975,5:55" << endl;
+            file << "Imagine,John Lennon,Pop,1971,3:03" << endl;
+            file << "Billie Jean,Michael Jackson,Pop,1982,4:54" << endl;
+            file << "Like a Rolling Stone,Bob Dylan,Rock,1965,6:13" << endl;
+            file << "Respect,Aretha Franklin,Soul,1967,2:28" << endl;
+            file << "I Will Always Love You,Whitney Houston,Pop,1992,4:31" << endl;
+            file << "Rolling in the Deep,Adele,Pop,2011,3:48" << endl;
+            file << "Smells Like Teen Spirit,Nirvana,Grunge,1991,5:01" << endl;
+            file << "Hotel California,Eagles,Rock,1976,6:31" << endl;
+            file << "Whats Going On,Marvin Gaye,Soul,1971,3:53" << endl;
+            file.close();
+        }
+        
+        void createDefaultCSV(){
+            ifstream checkFile(csv_file);
+            if(checkFile.is_open()){
+                string header;
+                getLine(checkFile, header);
+                checkFile.close();
+                if(header == header){
+                    return;
+                }
+                cout << "[!] Old CSV format detected. recreating playlist";
+                }
+                writeDefaultSongs();
+                cout << "Default playlist CSV created.";
+        }
+        
+        bool is Duplicate(string title, string artist){
+            ifstream file(csv_file);
+            if(!file.is_open()){
+                return false;
+            }
+            string line;
+            getline(file, line);
+            
+            while(getline(file, line)){
+                if(line.empty()) {
+                    continue;
+                }
+                string fields[5];
+                
+                if(!parseLine(line, fields, 5)){
+                    continue;
+                }
+                
+                if(toLower(fields[0]) == toLower(title) && 
+                    toLower(fields[1]) == toLower(artist)){
+                        file.close();
+                        return true;
+                    }
+            }
+            file.close();
+            return false;
+        }
+        
+        void saveSong(Songs s){
+            ofstream file(csv_file, ios::app);
+            if(!file.is_open()){\
+                cout << "Error\n";
+            }
+            file << s.title << "," << s.artist << "," << s.genre << "," 
+                << s.year << "," << s.duration << "\n";
+            file.close();
+            
+        }
+        
+        int loadSongs(Song songs[], int maxSongs){
+            ifstream file(csv_file);
+            if(!file.is_open()){\
+                cout << "Error\n";
+            }
+            string line;
+            getline(file, line);
+            int count = 0;
+            
+            while(getline(file, line) && cout < maxSongs){
+                if(line.empty()){
+                    continue;
+                }
+                string fields[5];
+                if(!parseLine(line, fields, 5)){
+                    continue;
+                }
+                songs[count++] = Song(fields[0], fields[1], fields [2], stoi(fields[3]), fields[4]);
+            }
+            
+        }
+        file.close();
+        return count;
+};
+
