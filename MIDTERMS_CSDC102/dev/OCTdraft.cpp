@@ -30,26 +30,24 @@ int login(string &adminPasscode)
 
 	else if (roleChoice == 2)
 	{
-		string passcode;
-		cout << "Enter admin passcode: ";
-		cin >> passcode;
-		if (passcode != adminPasscode)
+		for (int attempts = 0; attempts < 3; ++attempts)
 		{
-			cout << "Incorrect passcode. Access denied." << endl;
-			return 0; // Invalid role
-		}
-		else
-		{
-			cout << "Admin access granted." << endl;
-			return 2; // Admin role
-		}
-	}
+			string passcode;
+			cout << "Enter admin passcode: ";
+			cin >> passcode;
 
-	else
-	{
-		return 3;
+			if (passcode == adminPasscode)
+			{
+				cout << "Admin access granted." << endl;
+				return 2; // admin role
+			}
+
+			cout << "Incorrect passcode (" << attempts + 1 << "/3).\n";
+		}
 	}
-};
+	cout << "Access denied. System Locked." << endl;
+	return 3;
+}
 
 string encodeString(string plain)
 {
@@ -71,64 +69,17 @@ string decodeString(string encoded)
 	return decoded;
 };
 
-bool validateCardNumber(string userCard,
-						vector<string> &cardNumbers)
+bool validateCardNumber(string card)
 {
-	//MALI PA TO AHAHAHAHAHAH
 	// Implementation for validating card number
-	return true;
+	return false;
 }
 
-// Version 1: Custom amount
-bool withdraw(vector<double>& balances, int accountIndex, double withdrawAmount) 
+double calculateFeeRecursive(double amount, int iterations)
 {
-    // Process withdrawal
-	if(balances[accountIndex] >= withdrawAmount) // Check if balance is sufficient for the withdrawal amount
-	{
-		balances[accountIndex] -= withdrawAmount;
-    	return true;
-	}
-	else 
-	{
-		return false;
-	}
-}
-
-// Version 2: Preset amount
-bool withdraw(vector<double>& balances, int accountIndex, string presetAmount) 
-{
-    double withdrawAmount = stod(presetAmount);  // Convert string to double
-    return withdraw(balances, accountIndex, withdrawAmount);  // Call Version 1
-}
-
-double calculateFeeRecursive(double withdrawAmount, int iterations)
-{
-	if()
-	//MAN IDK
-	
 	// Implementation for calculating fee recursively
 	return 0.0;
 };
-
-// Recursive function to calculate number of bills for a given amount
-void calculateBills(double withdrawAmount, int& bills1000, int& bills500, int& bills100) {
-	if(withdrawAmount >= 1000) 
-	{
-        bills1000++;
-        calculateBills(withdrawAmount - 1000, bills1000, bills500, bills100);
-    } 
-    else if(withdrawAmount >= 500) 
-	{
-        bills500++;
-        calculateBills(withdrawAmount - 500, bills1000, bills500, bills100);
-    }
-	else if(withdrawAmount >= 100) 
-	{
-		bills100++;
-		calculateBills(withdrawAmount - 100, bills1000, bills500, bills100);
-	}
-    // Base case: amount < 100, recursion stops automatically
-}
 
 void logTransaction(const string &cardNum,
 					const string &type,
@@ -167,15 +118,17 @@ void clientMenu(vector<string> &cardNumbers,
 				vector<double> &balances,
 				vector<string> &encodedPINs,
 				vector<string> &userBanks,
-				vector<string> &accountTypes)
+				vector<string> &accountTypes
+				/*, ... other vectors if needed */)
 {
-	string userCard;
+	string cardNum_user;
 	cout << "Enter Card Number: ";
-	cin >> userCard;
+	cin >> cardNum_user;
 
 	for (int i = 0; i < cardNumbers.size(); i++)
 	{
-		if (userCard == cardNumbers[i])
+
+		if (cardNum_user == cardNumbers[i])
 		{
 			string userPin;
 			cout << "Enter PIN: ";
@@ -220,50 +173,9 @@ void clientMenu(vector<string> &cardNumbers,
 					else if (choiceUser == 2)
 					{
 						// Withdraw cash
-						int withdrawChoice;
-						cout << "Select Withdrawal Option:\n";
-						cout << "1. Predefined Amount (500, 1000, 2000, 5000, 10000)\n";
-						cout << "2. Custom Amount\n";
-						cout << "Enter choice: ";
-						cin >> withdrawChoice;
-
-						clearScreen();
-						double withdrawAmount;
-						int bills1000 = 0;
-						int bills500 = 0;
-						int bills100 = 0;
-
-						if(withdrawChoice == 1) 
-						{
-							int presetChoice;
-							cout << "Select Amount:\n";
-							cout << "1. Php 500\n";
-							cout << "2. Php 1000\n";
-							cout << "3. Php 2000\n";
-							cout << "4. Php 5000\n";
-							cout << "5. Php 10000\n";
-							cout << "Enter Choice: ";
-							cin >> presetChoice;
-
-							string presetAmount;
-							if(presetChoice == 1) presetAmount = "500";
-							else if(presetChoice == 2) presetAmount = "1000";
-							else if(presetChoice == 3) presetAmount = "2000";
-							else if(presetChoice == 4) presetAmount = "5000";
-							else if(presetChoice == 5) presetAmount = "10000";
-							else 
-							{
-								cout << "Invalid input.\n";
-							}
-							withdraw(balances, accountIndex, presetAmount);							
-						}
-
-						else if(withdrawChoice == 2)
-						{
-							cout << "Enter amount to withdraw: ";
-							cin >> withdrawAmount;
-							withdraw(balances, accountIndex, withdrawAmount);
-						}
+						int withdrawAmount;
+						cout << "Enter amount: ";
+						cin >> withdrawAmount;
 
 						// Deduct appropriate fee
 						if (accountTypes[accountIndex] == "Local")
@@ -286,13 +198,7 @@ void clientMenu(vector<string> &cardNumbers,
 								}
 							}
 						}
-						
-						// Calculate change in optimal bills
-						calculateBills(withdrawAmount, bills1000, bills500, bills100);
-						// Update Bill Count after withdrawal
-						billCount[0] -= bills100;
-						billCount[1] -= bills500;
-						billCount[2] -= bills1000;
+						balances[accountIndex] -= withdrawAmount;
 					}
 
 					else if (choiceUser == 3)

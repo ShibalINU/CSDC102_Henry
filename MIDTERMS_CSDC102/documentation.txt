@@ -136,3 +136,15 @@ https://stackoverflow.com/questions/7414983/how-can-i-use-ansi-escape-codes-for-
 https://gist.github.com/upsilun/4a85ab3bc7cf92e8acde720c6eb7ddea
 
 
+<<<<<<< Updated upstream
+=======
+Accounts for sample
+
+    vector<string> cardNumbers = {"12345678910", "10987654321", "11111111111"};
+    vector<string> encodedPINs = {encodeString("6767"), encodeString("9876"), encodeString("6543")};
+    vector<double> balances = {9000, 5600, 6700};
+    vector<string> userBanks = {"BPI", "BDO", "Metrobank"};
+    vector<string> accountTypes = {"Local", "International", "International"};
+
+
+>>>>>>> Stashed changes
